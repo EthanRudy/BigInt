@@ -102,7 +102,7 @@ std::string BigInt::subtract(std::string n1, std::string n2) {
 	return trim0(strdiff);
 }
 
-/// Recursively finds the product of the two passed strings
+// Recursively finds the product of the two passed strings
 std::string BigInt::karatsuba(std::string n1, std::string n2) {
 	int l1 = n1.length();
 	int l2 = n2.length();
