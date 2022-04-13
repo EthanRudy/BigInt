@@ -102,7 +102,7 @@ std::string BigInt::subtract(std::string n1, std::string n2) {
 	return trim0(strdiff);
 }
 
-// Recursively finds the product of the two passed strings
+/// Recursively finds the product of the two passed strings
 std::string BigInt::karatsuba(std::string n1, std::string n2) {
 	int l1 = n1.length();
 	int l2 = n2.length();
@@ -644,6 +644,9 @@ BigInt BigInt::operator*(const std::string& n) {
 // Finds the quotient of the passed BigInt and the called BigInt
 BigInt BigInt::operator/(const BigInt& n) {
 	if (operator<(n)) {
+		return BigInt("0");
+	}
+	if (n.num == "0") {
 		return BigInt("0");
 	}
 	BigInt posN = n;
