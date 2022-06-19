@@ -173,7 +173,7 @@ std::string BigInt::multiply(std::string n1, std::string n2) {
 			}
 			prodStr += std::to_string(dProd);
 		}
-		runningTotal = add(runningTotal, prodStr);
+		runningTotal = add(runningTotal, prodStr + std::to_string(carry));
 	}
 	return trim0(runningTotal);
 }
