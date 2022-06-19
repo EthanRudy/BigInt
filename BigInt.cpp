@@ -5,6 +5,9 @@
 
 #include "BigInt.h"
 
+// TEMPRARY
+#include <iostream>
+
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                           //
 //                             PRIVATE FUNCTIONS                             //
@@ -102,6 +105,8 @@ std::string BigInt::subtract(std::string n1, std::string n2) {
 	return trim0(strdiff);
 }
 
+/*
+* DISCLAIMER Broken somewhere, use standard multiplication instead
 /// Recursively finds the product of the two passed strings
 std::string BigInt::karatsuba(std::string n1, std::string n2) {
 	int l1 = n1.length();
@@ -135,6 +140,42 @@ std::string BigInt::karatsuba(std::string n1, std::string n2) {
 	e = pow10(e, mid);
 
 	return trim0((add(add(a, e), d)));
+}
+*/
+
+// Finds the product of the two passed strings
+std::string BigInt::multiply(std::string n1, std::string n2) {
+	// Equalizing the lengths to make looping easier
+	while (n1.length() < n2.length()) {
+		n1 = shift(n1, 1);
+	}
+	while (n2.length() < n1.length()) {
+		n2 = shift(n2, 1);
+	}
+	std::string ans = "";
+	int length = n1.length();
+	unsigned long long carry = 0; // Homie please don't overflow
+	std::string runningTotal = "0";
+	for (int i = 0; i < length; ++i) {
+		unsigned long long carry = 0;
+		std::string prodStr = "";
+		for (int z = 0; z < i; ++z) {
+			prodStr += "0";
+		}
+		for (int ii = 0; ii < length; ++ii) {
+			unsigned long long dProd = (n1[i] - '0') * (n2[ii] - '0') + carry;
+			if (dProd > 9) {
+				carry = dProd / 10;
+				dProd %= 10;
+			}
+			else {
+				carry = 0;
+			}
+			prodStr += std::to_string(dProd);
+		}
+		runningTotal = add(runningTotal, prodStr);
+	}
+	return trim0(runningTotal);
 }
 
 // Shifts the number to the right by inserting (filler) zeros
@@ -604,9 +645,9 @@ BigInt BigInt::operator-(const std::string& n) {
 // Finds the product of the passed BigInt and the called BigInt
 BigInt BigInt::operator*(const BigInt& n) {
 	if (this->negative == n.negative) {
-		return BigInt(karatsuba(this->num, n.num), 0, 1);
+		return BigInt(multiply(this->num, n.num), 0, 1);
 	}
-	return BigInt(karatsuba(this->num, n.num), 1, 1);
+	return BigInt(multiply(this->num, n.num), 1, 1);
 }
 
 // Finds the product of the passed integer and the called BigInt
@@ -803,11 +844,11 @@ void BigInt::operator+=(const std::string& n) {
 }
 
 
-	///////////////////////////////////////////////////////////////////////////
-	//                                                                       //
-	//                              SUBTRACTION                              //
-	//                                                                       //
-	///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+//                                                                       //
+//                              SUBTRACTION                              //
+//                                                                       //
+///////////////////////////////////////////////////////////////////////////
 
 // Finds and sets the difference of the passed BigInt and the called 
 //		BigInt to the called BigInt
@@ -845,11 +886,11 @@ void BigInt::operator-=(const std::string& n) {
 	*this = operator-(n);
 }
 
-	///////////////////////////////////////////////////////////////////////////
-	//                                                                       //
-	//                             MULTIPLICATION                            //
-	//                                                                       //
-	///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+//                                                                       //
+//                             MULTIPLICATION                            //
+//                                                                       //
+///////////////////////////////////////////////////////////////////////////
 
 // Finds and sets the product of the passed BigInt and the called 
 //		BigInt to the called BigInt
@@ -887,11 +928,11 @@ void BigInt::operator*=(const std::string& n) {
 	*this = operator*(n);
 }
 
-	///////////////////////////////////////////////////////////////////////////
-	//                                                                       //
-	//                                DIVISION                               //
-	//                                                                       //
-	///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+//                                                                       //
+//                                DIVISION                               //
+//                                                                       //
+///////////////////////////////////////////////////////////////////////////
 
 // Finds and sets the quotient of the passed BigInt and the called 
 //		BigInt to the called BigInt
@@ -930,11 +971,11 @@ void BigInt::operator/=(const std::string& n) {
 }
 
 
-	///////////////////////////////////////////////////////////////////////////
-	//                                                                       //
-	//                                 MODULO                                //
-	//                                                                       //
-	///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+//                                                                       //
+//                                 MODULO                                //
+//                                                                       //
+///////////////////////////////////////////////////////////////////////////
 
 // Finds and sets the remainder of the passed BigInt and the called 
 //		BigInt to the called BigInt
@@ -973,11 +1014,11 @@ void BigInt::operator%=(const std::string& n) {
 }
 
 
-	///////////////////////////////////////////////////////////////////////////
-	//                                                                       //
-	//                            INCREMENTATIONS                            //
-	//                                                                       //
-	///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+//                                                                       //
+//                            INCREMENTATIONS                            //
+//                                                                       //
+///////////////////////////////////////////////////////////////////////////
 
 // Iterates the BigInt up by one
 void BigInt::operator++() {
