@@ -33,10 +33,6 @@ private:
 	*/
 	bool neg = false;
 
-
-	// Length for ease of access and resizing
-	// When resizing, 4 bits are added
-	// 4 bits for double dabble ease
 	/**
 	* Length counter for ease of access and resizing
 	* When resizing, 4 bits are added for a compromize of space and speed
