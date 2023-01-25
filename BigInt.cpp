@@ -1,7 +1,7 @@
 // Initialization file for the BigInt class
 // @file BigInt.cpp
 // @author Ethan Rudy
-// @version 1.0
+// @version 0.1
 
 #include "BigInt.h"
 
