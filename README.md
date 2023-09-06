@@ -1,3 +1,3 @@
-# BigInt
+# BigInt v4
 
-Currently working on the next version!
+This is the really slow binary attempt, the chunk version is in the works, finishing up division. Screw long division
