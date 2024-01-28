@@ -1,782 +1,1469 @@
-/*
-	BigInt - Support for arbitrary sized integers
-	Now all in one file!
-
-	No copyright, idk how that works.
-
-*/
+// -*- LSST-C++ -*-
 
 #ifndef BIGINT_HPP
 #define BIGINT_HPP
 
+#include <exception>
+#include <iomanip>
 #include <iostream>
-#include <vector>	// "Chunk" storage
-#include <iomanip>	// Used in output manipulation
-#include <sstream>	// Used here and there for string manipulation
-#include <climits>	// Used in constructors for underflow detection
+#include <sstream>
+#include <string>
+#include <vector>
 
-typedef int CHUNK; // This will be the data type that holds a "chunk" of our number
-typedef long long CHUNK_PROD; // Self explanatory, keeps the overflows out of the library that eliminates them
+// BIG namespace
+namespace big {
 
-static const CHUNK BASE = 1000000000; // This is what we use to extract chunks
-static const CHUNK MAX_VALUE = 999999999; // This is the upper bound of what we'll allow our chunks to be
-static const int NUM_DIGIS = 9; // Length of CHUNKS, used in output and string constructors
+	// Custom exception class
+	class IntegerException : std::exception {
+	public:
+
+		// Constructor (primary)
+		IntegerException(const std::string& msg) : _msg(msg) { }
+
+		// what() overload
+		virtual const char* what() const noexcept override {
+			return _msg.c_str();
+		}
+	protected:
+	private:
+		std::string _msg;	// Error message
+	};
+
+	typedef int BLOCK;
+	typedef long long BLOCK_PRODUCT;
+
+	const BLOCK MIN = 0, MAX = 999999999;	// 0 to 1 billion
+	const BLOCK BASE = 1000000000;		// Base (used for calculating blocks)
+	const int DIGITS = 9;
+
+	class Integer {
+	public:
+
+		//////////////////
+		// CONSTRUCTORS //
+		//////////////////
+
+		/**
+		* Default Constructor
+		*/
+		Integer();
+
+		/**
+		* Integer Constructor
+		* 
+		* @param n integer to be used when creating the big::Integer object
+		*/
+		Integer(int n);
+
+		/**
+		* Long Constructor
+		* 
+		* @param n long to be used when creating the big::Integer object
+		*/
+		Integer(long n);
+
+		/**
+		* LLong Constructor
+		* 
+		* @param n long long to be used when creating the big::Integer object
+		*/
+		Integer(long long n);
+
+		/**
+		* uInt Constructor
+		* 
+		* @param n unsigned integer to be used when creating the big::Integer object
+		*/
+		Integer(unsigned int n);
+
+		/**
+		* uLong Constructor
+		* 
+		* @param n unsigned long to be used when creating the big::Integer object
+		*/
+		Integer(unsigned long n);
+
+		/**
+		* uLLong Constructor
+		* 
+		* @param n unsigned long long to be used when creating the big::Integer object
+		*/
+		Integer(unsigned long long n);
+
+		/**
+		* Char Array Constructor
+		* 
+		* @param str char array to be used when creating the big::Integer object
+		*/
+		Integer(const char* str);
+
+		/**
+		* std::string Constructor
+		* 
+		* @param str std::string object to be used when creating the big::Integer object
+		*/
+		Integer(const std::string& str);
+
+		/**
+		* Deconstructor
+		*/
+		~Integer();
+
+		/**
+		* Copy Constructor
+		* 
+		* @param o (Other) big::Integer object to be copied
+		*/
+		Integer(const Integer& o);
+
+		/////////////////
+		// ASSIGNMENTS //
+		/////////////////
+
+		/**
+		* Integer Object Assignment
+		* 
+		* @param o (Other) Integer object to be copied
+		*/
+		Integer& operator=(const Integer& o);
+
+		/**
+		* Int Assignment
+		* 
+		* @param n integer to be used when copying
+		*/
+		Integer& operator=(int n);
+
+		/**
+		* Long Assignment
+		*
+		* @param n long to be used when copying
+		*/
+		Integer& operator=(long n);
+
+		/**
+		* LLong Assignment
+		*
+		* @param long long integer to be used when copying
+		*/
+		Integer& operator=(long long n);
+
+		/**
+		* uInt Assignment
+		*
+		* @param n unsigned integer to be used when copying
+		*/
+		Integer& operator=(unsigned int n);
+
+		/**
+		* uLong Assignment
+		*
+		* @param n unsigned long to be used when copying
+		*/
+		Integer& operator=(unsigned long n);
+
+		/**
+		* uLLong Assignment
+		*
+		* @param n unsigned long long to be used when copying
+		*/
+		Integer& operator=(unsigned long long n);
+
+		/**
+		* Char Array Assignment
+		*
+		* @param str const char* to be used when copying
+		*/
+		Integer& operator=(const char* str);
+
+		/**
+		* std::string Assignment
+		*
+		* @param str std::string to be used when copying
+		*/
+		Integer& operator=(const std::string& str);
+
+		//////////////
+		// IOSTREAM //
+		//////////////
+
+		/**
+		* Ostream Operator Overload
+		*/
+		friend std::ostream& operator<<(std::ostream& os, const Integer& o);
+
+		//////////////////
+		// INEQUALITIES //
+		//////////////////
+
+		/**
+		* Equivalence Operator Overload
+		* 
+		* @param o (Other) Integer object being compared against
+		*/
+		bool operator==(const Integer& o) const;
+
+		/**
+		* Not-Equivalence Operator Overload
+		* 
+		* @param o (Other) Integer object being compared against
+		*/
+		bool operator!=(const Integer& o) const;
+
+		/**
+		* Less-Than Operator Overload
+		* 
+		* @param o (Other) Integer object being compared against
+		*/
+		bool operator<(const Integer& o) const;
+
+		/**
+		* Greater-Than Operator Overload
+		* 
+		* @param o (Other) Integer object being compared against
+		*/
+		bool operator>(const Integer& o) const;
+
+		/**
+		* Less-Than or Equal-To Operator Overload
+		* 
+		* @param o (Other) Integer object being compared against
+		*/
+		bool operator<=(const Integer& o) const;
+
+		/**
+		* Greater-Than or Equal-To Operator Overload
+		* 
+		* @param o (Other) Integer object being compared against
+		*/
+		bool operator>=(const Integer& o) const;
+
+		////////////////
+		// ARITHMETIC //
+		////////////////
+
+		/**
+		* Addition Overload
+		* 
+		* @param o (Other) Integer object to be used when adding
+		*/
+		Integer operator+(const Integer& o) const;
+
+		/**
+		* Subtraction Overload
+		*
+		* @param o (Other) Integer object to be used when subtracting
+		*/
+		Integer operator-(const Integer& o) const;
+
+		/**
+		* Multiplication Overload (Object)
+		*
+		* @param o (Other) Integer object to be used when multiplying
+		*/
+		Integer operator*(const Integer& o) const;
+
+		/**
+		* Multiplication Overload (Block)
+		*
+		* @param n integer to be used when multiplying
+		*/
+		Integer operator*(BLOCK n);
+
+		/**
+		* Division Overload
+		* 
+		* @param o (Other) Integer object to be used when dividing
+		*/
+		Integer operator/(const Integer& o) const;
+
+		/**
+		* Modulo Overload
+		* 
+		* @param o (Other) Integer object to be used when finding remainder
+		*/
+		Integer operator%(const Integer& o) const;
+
+		/**
+		* Addition & Assignment Overload
+		*
+		* @param o (Other) Integer object to be used when adding
+		*/
+		const Integer& operator+=(const Integer& o);
+
+		/**
+		* Subtraction & Assignment Overload
+		*
+		* @param o (Other) Integer object to be used when subtracting
+		*/
+		const Integer& operator-=(const Integer& o);
+
+		/**
+		*  Multiplication & Assignment Overload (Object)
+		*
+		* @param o (Other) Integer object to be used when multiplying
+		*/
+		const Integer& operator*=(const Integer& o);
+
+		/**
+		*  Multiplication & Assignment Overload (Block)
+		*
+		* @param n integer to be used when multiplying
+		*/
+		const Integer& operator*=(BLOCK n);
+
+		/**
+		* Division & Assignment Overload
+		*
+		* @param o (Other) Integer object to be used when dividing
+		*/
+		const Integer& operator/=(const Integer& o);
+
+		/**
+		* Modulo & Assignment Overload
+		*
+		* @param o (Other) Integer object to be used when finding remainder
+		*/
+		const Integer& operator%=(const Integer& o);
+
+		///////////
+		// UNARY //
+		///////////
+
+		/**
+		* Unary Negative
+		*
+		* @return A negative *this
+		*/
+		Integer operator-() const;
+
+		/**
+		* Pre-increment
+		*/
+		Integer operator++(int);
+
+		/**
+		* Pre-decrement
+		*/
+		Integer operator--(int);
+
+		/**
+		* Post-increment
+		*/
+		const Integer& operator++();
+
+		/**
+		* Post-decrement
+		*/
+		const Integer& operator--();
+
+		/////////////
+		// BITWISE //
+		/////////////
+
+		/**
+		* Bitwise And Overload
+		* 
+		* @param o (Other) Integer object to be used when performing the AND operation
+		*/
+		Integer operator&(Integer& o);
+
+		/*
+		* Bitwise Or Overload
+		* 
+		* @param o (Other) Integer object to be used when performing the OR operation
+		*/
+		Integer operator|(Integer& o);
+
+		/*
+		* Bitwise Xor Overload
+		*
+		* @param o (Other) Integer object to be used when performing the XOR operation
+		*/
+		Integer operator^(Integer& o);
+
+		/**
+		* Shift Left Overload
+		* 
+		* @param n Number of shifts
+		*/
+		Integer operator<<(int n);
+
+		/**
+		* Shift Right Overload
+		*
+		* @param n Number of shifts
+		*/
+		Integer operator>>(int n);
+
+	protected:
+	private:
+		std::vector<BLOCK> num;
+		bool sign;
+
+		/**
+		* Construct From String
+		* Sets big::Integer object data based on passed std::string or const char*
+		*/
+		void construct_from_string(std::string str);
+
+		/**
+		* Tweak Blocks
+		* 
+		* Fixes any (over/under)flowing Block
+		*/
+		void tweak_blocks();
+
+		/**
+		* Trim Leading (zeros)
+		* 
+		* Trims any leading zeros that are taking up unnecessary space
+		*/
+		void trim_leading();
+
+		/**
+		* Denominator In Remainder
+		* 
+		* @param rem Remainder
+		* @param den Denominator
+		*/
+		static BLOCK denominator_in_remainder(const Integer& rem, const Integer& den);
+
+		/**
+		* Get Binary
+		* 
+		* @return bin Binary representation in string form
+		*/
+		std::string get_binary();
+
+		/**
+		* From Binary
+		* 
+		* @return num Integer representation
+		*/
+		Integer from_binary(const std::string& str);
+	};
 
 
-/*
-	Might write an exception class for things like division by 0 or string inputs, but right now I'm the only one using this
-*/
-
-/*
-	Helper functions for our constructors using div_t(s)
-*/
-inline static div_t intDiv(int num, int den) {
-	div_t res;
-	res.quot = num / den;
-	res.rem = num - den * res.quot;	// Reduce division operations
-	return res;
-}
-
-inline static ldiv_t longDiv(long num, long den) {
-	ldiv_t res;
-	res.quot = num / den;
-	res.rem = num - den * res.quot;	// Reduce division operations
-	return res;
-}
-
-inline static lldiv_t llongDiv(long long num, long long den) {
-	lldiv_t res;
-	res.quot = num / den;
-	res.rem = num - den * res.quot;	// Reduce division operations
-	return res;
-}
-
-class BigInt {
-	// Iostream overloads
-	friend std::ostream& operator<<(std::ostream& os, const BigInt& o);
-	friend std::istream& operator<<(std::istream& is, BigInt& o);
-public:
-	// Constructors
-	BigInt();				// Default (0)
-
-	BigInt(unsigned int n);	// Unsigned values
-	BigInt(unsigned long n);
-	BigInt(unsigned long long n);
-
-	BigInt(int n);			// Signed values
-	BigInt(long n);
-	BigInt(long long n);
-
-	BigInt(const char* c);	// Strings
-	BigInt(const std::string& str);
-
-	// Assignment Operands
-	BigInt& operator=(const BigInt& o);	// Object
-
-	BigInt& operator=(unsigned int n);	// Unsigned values
-	BigInt& operator=(unsigned long n);
-	BigInt& operator=(unsigned long long n);
-
-	BigInt& operator=(int n);			// Signed values
-	BigInt& operator=(long n);
-	BigInt& operator=(long long n);
-
-	BigInt& operator=(const char* c);
-	BigInt& operator=(const std::string& str);
-
-	// Relational Operands
-	bool operator==(const BigInt& o) const;
-	bool operator!=(const BigInt& o) const;
-	bool operator>(const BigInt& o) const;
-	bool operator<(const BigInt& o) const;
-	bool operator>=(const BigInt& o) const;
-	bool operator<=(const BigInt& o) const;
-
-	// I understand the value of bitwise operands but i don't want to, go back to v4 for that
-
-	// Arithmetic Operands
-	BigInt operator+(const BigInt& o) const;
-	BigInt operator-(const BigInt& o) const;
-	BigInt operator*(const BigInt& o) const;
-	BigInt operator*(CHUNK o);					// This will be used a ton, so an efficient method is made
-	BigInt operator/(const BigInt& o) const;
-	BigInt operator%(const BigInt& o) const;
-
-	// Arithmetic-Assignment Operands
-	const BigInt& operator+=(const BigInt& o);
-	const BigInt& operator-=(const BigInt& o);
-	const BigInt& operator*=(const BigInt& o);
-	const BigInt& operator*=(CHUNK o);
-	const BigInt& operator/=(const BigInt& o);
-	const BigInt& operator%=(const BigInt& o);
-
-	// Unary Operands
-	BigInt operator-() const;	// -x
-	BigInt operator++(int);		// x++
-	BigInt operator--(int);
-	const BigInt& operator++();	// ++x
-	const BigInt& operator--();
-
-	std::string toString() const;
-
-private:
-	std::vector<CHUNK> num; // Number storage vector
-	bool neg;				// Negative boolean
-
-	void fromString(const std::string& str);	// Used in string constructors
-	void tweak(bool onlyTrim = false, bool validSign = false); // Used to correct results
-	void trimZeros();	// Trims the leading zeros of a BigInt being tweaked
-	void trunc();		// Truncates the CHUNKS to the base value (stops overflows)
-	bool chunksFixed();	// Returns if the chunks are fixed, obv
-
-	void multByChunk(CHUNK o, std::vector<CHUNK>& num);
-	static CHUNK denInRem(const BigInt& rem, const BigInt& den);	// this time this isn't repeated subtraction!
-};
-
-#pragma region Constructors
-inline BigInt::BigInt() {
-	neg = false;
-	num.push_back(0);
-}
-
-inline BigInt::BigInt(unsigned int n) {
-	neg = false;
-	do {
-		num.push_back(n % BASE);
-		n /= BASE;
-	} while (n > 0);
-}
-
-inline BigInt::BigInt(unsigned long n) {
-	neg = false;
-	do {
-		num.push_back(n % BASE);
-		n /= BASE;
-	} while (n > 0);
-}
-
-inline BigInt::BigInt(unsigned long long n) {
-	neg = false;
-	do {
-		num.push_back(n % BASE);
-		n /= BASE;
-	} while (n > 0);
-}
-
-inline BigInt::BigInt(int n) {
-	neg = (n < 0);
-
-	if (neg) { n = -n; }
-
-	do {
-		div_t div = intDiv(n, BASE);
-		num.push_back(div.rem);
-		n = div.quot;
-	} while (n > 0);
-}
-
-inline BigInt::BigInt(long n) {
-	neg = (n < 0);
-
-	if (neg) { n = -n; }
-
-	do {
-		ldiv_t div = longDiv(n, BASE);
-		num.push_back(div.rem);
-		n = div.quot;
-	} while (n > 0);
-}
-
-inline BigInt::BigInt(long long n) {
-	neg = (n < 0);
-
-	if (neg) { n = -n; }
-
-	do {
-		lldiv_t div = llongDiv(n, BASE);
-		num.push_back(div.rem);
-		n = div.quot;
-	} while (n > 0);
-}
-
-inline void BigInt::fromString(const std::string& str) {
-	neg = (str[0] == '-');
-	num.reserve(str.size() / NUM_DIGIS + 1);
-
-	int index = str.size() - NUM_DIGIS;
-	for (; index >= 0; index -= NUM_DIGIS) {	// Everything that fits easily
-		num.push_back(std::stoi(str.substr(index, 9)));
+	// Default Constructor
+	Integer::Integer() {
+		num = { 0 };	// Set default value to 0
+		sign = false;
 	}
 
-	if (index > -NUM_DIGIS) {	// Overhang
-		num.push_back(std::stoi(str.substr((neg ? 1 : 0), (size_t)NUM_DIGIS + index - (neg ? 1 : 0))));
-		// Ternary accounts for negative sign
+
+	// Integer Constructor
+	Integer::Integer(int n) {
+		// If n == 0, sign is 0
+		// If n  > 0, sign is 0
+		// If n  < 0, sign is 1
+		if (n == 0) { sign = 0; }
+		else if (n > 0) { sign = 0; }
+		else { sign = 1, n = -n; }
+
+		do {
+			num.push_back(n % BASE);
+			n /= BASE;
+		} while (n > 0);
 	}
 
-}
 
-inline BigInt::BigInt(const char* c) {
-	fromString(c);
-}
+	// Long Constructor
+	Integer::Integer(long n) {
+		if (n == 0) { sign = 0; }
+		else if (n > 0) { sign = 0; }
+		else { sign = 1, n = -n; }
 
-inline BigInt::BigInt(const std::string& str) {
-	fromString(str);
-}
-#pragma endregion
-
-#pragma region Assignment Operators
-
-inline BigInt& BigInt::operator=(const BigInt& o) {
-	neg = o.neg;
-	num = o.num;
-
-	return *this;
-}
-
-inline BigInt& BigInt::operator=(unsigned int n) {
-	num.clear();
-
-	neg = false;
-	do {
-		num.push_back(n % BASE);
-		n /= BASE;
-	} while (n > 0);
-
-	return *this;
-}
-
-inline BigInt& BigInt::operator=(unsigned long n) {
-	num.clear();
-
-	neg = false;
-	do {
-		num.push_back(n % BASE);
-		n /= BASE;
-	} while (n > 0);
-
-	return *this;
-}
-
-inline BigInt& BigInt::operator=(unsigned long long n) {
-	num.clear();
-
-	neg = false;
-	do {
-		num.push_back(n % BASE);
-		n /= BASE;
-	} while (n > 0);
-
-	return *this;
-}
-
-inline BigInt& BigInt::operator=(int n) {
-	num.clear();
-
-	neg = (n < 0);
-
-	if (neg) { n = -n; }
-
-	do {
-		div_t div = intDiv(n, BASE);
-		num.push_back(div.rem);
-		n = div.quot;
-	} while (n > 0);
-
-	return *this;
-}
-
-inline BigInt& BigInt::operator=(long n) {
-	num.clear();
-
-	neg = (n < 0);
-
-	if (neg) { n = -n; }
-
-	do {
-		ldiv_t div = longDiv(n, BASE);
-		num.push_back(div.rem);
-		n = div.quot;
-	} while (n > 0);
-
-	return *this;
-}
-
-inline BigInt& BigInt::operator=(long long n) {
-	num.clear();
-
-	neg = (n < 0);
-
-	if (neg) { n = -n; }
-
-	do {
-		lldiv_t div = llongDiv(n, BASE);
-		num.push_back(div.rem);
-		n = div.quot;
-	} while (n > 0);
-
-	return *this;
-}
-
-inline BigInt& BigInt::operator=(const char* c) {
-	num.clear();
-
-	fromString(c);
-
-	return *this;
-}
-
-inline BigInt& BigInt::operator=(const std::string& str) {
-	num.clear();
-
-	fromString(str);
-
-	return *this;
-}
-
-#pragma endregion
-
-#pragma region Relational Operands
-inline bool BigInt::operator==(const BigInt& o) const {
-	if (neg != o.neg) { return false; }
-
-	if (num.size() != o.num.size()) { return false; }
-
-	for (int i = num.size(); i > -1; --i) {
-		if (num[i] != o.num[i]) { return false; }
+		do {
+			num.push_back(n % BASE);
+			n /= BASE;
+		} while (n > 0);
 	}
 
-	return true;
-}
 
-inline bool BigInt::operator!=(const BigInt& o) const {
-	if (neg != o.neg) { return true; }
+	// LLong Constructor
+	Integer::Integer(long long n) {
+		if (n == 0) { sign = 0; }
+		else if (n > 0) { sign = 0; }
+		else { sign = 1, n = -n; }
 
-	if (num.size() != o.num.size()) { return true; }
-
-	for (int i = num.size(); i > -1; --i) {
-		if (num[i] != o.num[i]) { return true; }
+		do {
+			num.push_back(n % BASE);
+			n /= BASE;
+		} while (n > 0);
 	}
 
-	return false;
-}
 
-inline bool BigInt::operator>(const BigInt& o) const {
-	if (neg && !o.neg) { return false; }
-	if (!neg && o.neg) { return true; }
-
-	if (num.size() > o.num.size()) { return neg ? false : true; }
-	if (num.size() < o.num.size()) { return neg ? true : false; }
-
-	for (int i = num.size(); i > -1; --i) {
-		if (num[i] < o.num[i]) { return neg ? true : false; }
-		if (num[i] > o.num[i]) { return neg ? false : true; }
+	// uInt Constructor
+	Integer::Integer(unsigned int n) {
+		sign = 0;
+		do {
+			num.push_back(n % BASE);
+			n /= BASE;
+		} while (n > 0);
 	}
 
-	return false;
-}
 
-inline bool BigInt::operator<(const BigInt& o) const {
-	if (neg && !o.neg) { return true; }
-	if (!neg && o.neg) { return false; }
-
-	if (num.size() > o.num.size()) { return neg ? true : false; }
-	if (num.size() < o.num.size()) { return neg ? false : true; }
-
-	for (int i = num.size(); i > -1; --i) {
-		if (num[i] < o.num[i]) { return neg ? false : true; }
-		if (num[i] > o.num[i]) { return neg ? true : false; }
+	// uLong Constructor
+	Integer::Integer(unsigned long n) {
+		sign = 0;
+		do {
+			num.push_back(n % BASE);
+			n /= BASE;
+		} while (n > 0);
 	}
 
-	return false;
-}
-
-inline bool BigInt::operator>=(const BigInt& o) const {
-	if (neg && !o.neg) { return false; }
-	if (!neg && o.neg) { return true; }
-
-	if (num.size() > o.num.size()) { return neg ? false : true; }
-	if (num.size() < o.num.size()) { return neg ? true : false; }
-
-	for (int i = num.size(); i > -1; --i) {
-		if (num[i] < o.num[i]) { return neg ? true : false; }
-		if (num[i] > o.num[i]) { return neg ? false : true; }
-	}
-
-	return true;
-}
-
-inline bool BigInt::operator<=(const BigInt& o) const {
-	if (neg && !o.neg) { return true; }
-	if (!neg && o.neg) { return false; }
-
-	if (num.size() > o.num.size()) { return neg ? true : false; }
-	if (num.size() < o.num.size()) { return neg ? false : true; }
-
-	for (int i = num.size(); i > -1; --i) {
-		if (num[i] < o.num[i]) { return neg ? false : true; }
-		if (num[i] > o.num[i]) { return neg ? true : false; }
-	}
-
-	return true;
-}
-
-#pragma endregion
-
-#pragma region Arithmetic Operands
-inline BigInt BigInt::operator+(const BigInt& o) const {
-	BigInt res;
-	res.num.resize(num.size() > o.num.size() ? num.size() : o.num.size(), 0);	// Get ready for ternary hellscapes :D
-	for (int i = 0; i < num.size() || i < o.num.size(); ++i) {
-		res.num[i] = (i < num.size() ? (neg ? -num[i] : num[i]) : 0) + (i < o.num.size() ? (o.neg ? -o.num[i] : o.num[i]) : 0);
-	}
-	res.tweak();
-
-	return res;
-}
-
-inline BigInt BigInt::operator-(const BigInt& o) const {
-	BigInt res;
-	res.num.resize(num.size() > o.num.size() ? num.size() : o.num.size(), 0);
-	for (int i = 0; i < num.size() || i < o.num.size(); ++i) {
-		res.num[i] = (i < num.size() ? (neg ? -num[i] : num[i]) : 0) - (i < o.num.size() ? (o.neg ? -o.num[i] : o.num[i]) : 0);
-	}
-	res.tweak();
-
-	return res;
-}
-
-inline BigInt BigInt::operator*(const BigInt& o) const {
-	BigInt res;
-	res.num.resize(num.size() + o.num.size(), 0);
-	CHUNK_PROD c = 0;
-	int digi = 0;
 	
-	for (;; ++digi) {
-		// Initial calculation
-		lldiv_t div = llongDiv(c, BASE); // Should've name it something to do with chunk prod
-		c = div.quot;
-		res.num[digi] = div.rem;
+	// uLLong Constructor
+	Integer::Integer(unsigned long long n) {
+		sign = 0;
+		do {
+			num.push_back(n % BASE);
+			n /= BASE;
+		} while (n > 0);
+	}
 
-		bool found = false;
-		for (int i = digi < o.num.size() ? 0 : digi - o.num.size() + 1; i < num.size() && i <= digi; ++i) { // choosing starting point
-			CHUNK_PROD prod = res.num[digi] + num[i] * (CHUNK_PROD)o.num[digi - i]; // Conversion because it overflowed
 
-			if (prod > MAX_VALUE || prod < -MAX_VALUE) {	// Trunc to base func, but only right here
-				div = llongDiv(prod, BASE);
-				c += div.quot;	// Preserve cascading carry value
-				prod = div.rem;
-			}
-			res.num[digi] = prod;
-			found = true;
+	// Char Array Constructor
+	Integer::Integer(const char* str) {
+		construct_from_string(str);
+	}
+
+
+	// std::string Constructor
+	Integer::Integer(const std::string& str) {
+		construct_from_string(str);
+	}
+
+	// Deconstructor
+	Integer::~Integer() {
+		num.clear();
+	}
+
+
+	// Copy Constructor
+	Integer::Integer(const Integer& o) {
+		num.clear();
+
+		sign = o.sign;
+		for (BLOCK i : o.num) {
+			num.push_back(i);
+		}
+	}
+
+
+	// Integer Object Assignment
+	Integer& Integer::operator=(const Integer& o) {
+		num.clear();
+
+		sign = o.sign;
+		for (BLOCK i : o.num) {
+			num.push_back(i);
 		}
 
-		// Result found, do no more math
-		if (!found) { break; }
+		return *this;
 	}
-	// Hande possible remaining carry
-	for (; c > 0; ++digi) {
-		lldiv_t div = llongDiv(c, BASE);
-		res.num[digi] = div.rem;
-		c = div.quot;
+
+
+	// Int Assignment
+	Integer& Integer::operator=(int n) {
+		num.clear();
+
+		if (n == 0) { sign = 1; }
+		else if (n > 0) { sign = 1; }
+		else { sign = 0, n = -n; }
+
+		while (n > 0) {
+			num.push_back(n % BASE);
+			n /= BASE;
+		}
+
+		return *this;
 	}
-	res.tweak();
 
-	// Handle sign
-	res.neg = (res.num.size() == 1 && res.num[0] == 0) ? false : (neg != o.neg);
 
-	return res;
-}
+	// Long Assignment
+	Integer& Integer::operator=(long n) {
+		num.clear();
 
-inline BigInt BigInt::operator*(CHUNK o) {	// This one is much easier
-	BigInt res = *this;
-	CHUNK fact = o < 0 ? -o : o;	// make positive
+		if (n == 0) { sign = 1; }
+		else if (n > 0) { sign = 1; }
+		else { sign = 0, n = -n; }
 
-	multByChunk(fact, res.num);
+		while (n > 0) {
+			num.push_back(n % BASE);
+			n /= BASE;
+		}
+
+		return *this;
+	}
+
+
+	// LLong Assignment
+	Integer& Integer::operator=(long long n) {
+		num.clear();
+
+		if (n == 0) { sign = 1; }
+		else if (n > 0) { sign = 1; }
+		else { sign = 0, n = -n; }
+
+		while (n > 0) {
+			num.push_back(n % BASE);
+			n /= BASE;
+		}
+
+		return *this;
+	}
+
+
+	// uInt Assignment
+	Integer& Integer::operator=(unsigned int n) {
+		num.clear();
+
+		sign = 1;
+
+		while (n > 0) {
+			num.push_back(n % BASE);
+			n /= BASE;
+		}
+
+		return *this;
+	}
+
+
+	// uLong Assignment
+	Integer& Integer::operator=(unsigned long n) {
+		num.clear();
+
+		sign = 1;
+
+		while (n > 0) {
+			num.push_back(n % BASE);
+			n /= BASE;
+		}
+
+		return *this;
+	}
+
+
+	// uLLong Assignment
+	Integer& Integer::operator=(unsigned long long n) {
+		num.clear();
+
+		sign = 1;
+
+		while (n > 0) {
+			num.push_back(n % BASE);
+			n /= BASE;
+		}
+
+		return *this;
+	}
+
+
+	// Char Array Assignment
+	Integer& Integer::operator=(const char* c) {
+		num.clear();
+
+		construct_from_string(c);
+
+		return *this;
+	}
+
+
+	// std::string Constructor
+	Integer& Integer::operator=(const std::string& c) {
+		num.clear();
+
+		construct_from_string(c);
+
+		return *this;
+	}
+
+
+	// Ostream Operator Overload
+	std::ostream& operator<<(std::ostream& os, const Integer& o) {
+		if (o.sign) { os << '-'; }	// Append negative sign
+
+		bool first = true;
+		for (int i = o.num.size() - 1; i > -1; --i) {
+			// [1][000000001] == { 1, 1 }
+			// Need to append leading zeros if this isn't the first block
+			if (first) {
+				os << o.num[i];
+				first = false;
+			}
+			else {
+				os << std::setfill('0') << std::setw(DIGITS) << o.num[i];
+			}
+		}
+
+		return os;
+	}
 	
-	res.tweak();
-	res.neg = (res.num.size() == 1 && res.num[0] == 0) ? false : (neg = o < 0);
 
-	return res;
-}
-
-inline BigInt BigInt::operator/(const BigInt& o) const {
-	BigInt den = (o.neg ? -o : 0), num = (neg ? -*this : *this), quot, rem;	// brb unary operator time lol
-	quot.num.resize(num.num.size(), 0); // I have made a severe lack of judgement when naming numerator
-
-	for (int i = num.num.size() - 1; i > -1; --i) {
-		rem.num.insert(rem.num.begin(), num.num[i]);
-		rem.tweak(true);	// only trim
-		CHUNK count = denInRem(rem, den);
-		rem -= den * count;	// brb a-a operand time lol
-		quot.num[i] += count;
+	// to_string()
+	std::string to_string(const Integer& n) {
+		std::ostringstream ss;
+		ss << n;
+		return ss.str();
 	}
 
-	quot.tweak();
 
-	quot.neg = (quot.num.size() == 1 && quot.num[0] == 0) ? false : (neg != o.neg); // Yoinked from *()
+	// Equivalence Operator Overload
+	bool Integer::operator==(const Integer& o) const {
+		if (sign != o.sign) { return false; }
+		if (num.size() != o.num.size()) { return false; }
+		
+		for (int i = 0; i < num.size(); ++i) {
+			if (num[i] != o.num[i]) { return false; }
+		}
 
-	return quot;
-}
-
-inline BigInt BigInt::operator%(const BigInt& o) const {	// lol this is faster
-	BigInt den = (o.neg ? -o : 0), num = (neg ? -*this : *this), rem;	// brb unary operator time lol
-
-	for (int i = num.num.size() - 1; i > -1; --i) {
-		rem.num.insert(rem.num.begin(), num.num[i]);
-		rem.tweak(true);	// only trim
-		CHUNK count = denInRem(rem, den);
-		rem -= den * count;
+		return true;
 	}
 
-	rem.tweak();
 
-	rem.neg = (rem.num.size() == 1 && rem.num[0] == 0) ? false : (neg != o.neg);
+	// Not-Equivalence Operator Overload
+	bool Integer::operator!=(const Integer& o) const {
+		if (sign != o.sign) { return true; }
+		if (num.size() != o.num.size()) { return true; }
 
-	return rem;
-}
+		for (int i = 0; i < num.size(); ++i) {
+			if (num[i] != o.num[i]) { return true; }
+		}
 
-#pragma endregion
-
-#pragma region Arithmetic-Assignment Operands
-inline const BigInt& BigInt::operator+=(const BigInt& o) {
-	if (o.num.size() > num.size()) { num.resize(o.num.size(), 0); }
-
-	for (int i = 0; i < num.size(); ++i) {
-		num[i] = (neg ? -num[i] : num[i]) + (o.neg ? -o.num[i] : o.num[i]);
+		return false;
 	}
-	tweak();
 
-	return *this;
-}
 
-inline const BigInt& BigInt::operator-=(const BigInt& o) {
-	if (o.num.size() > num.size()) { num.resize(o.num.size(), 0); }
+	// Less-Than Operator Overload
+	bool Integer::operator<(const Integer& o) const {
+		if (sign && !o.sign) { return true; }		// Negative vs Positive
+		else if (!sign && o.sign) { return false; }	// Positive vs Negative
 
-	for (int i = 0; i < num.size(); ++i) {
-		num[i] = (neg ? -num[i] : num[i]) - (o.neg ? -o.num[i] : o.num[i]);
+		if (num.size() < o.num.size()) { return sign ? false : true; }	// +Short < +Long
+		if (num.size() > o.num.size()) { return sign ? true : false; }	// -Long < -Short
+		
+		for (int i = num.size() - 1; i > -1; --i) {
+			if (num[i] < o.num[i]) { return sign ? false : true; }
+			if (num[i] > o.num[i]) { return sign ? true : false; }
+		}
+
+		return false;	// ==
 	}
-	tweak();
 
-	return *this;
-}
 
-// The rest of these are pretty complicated so if these are really bad, ill fix them, but its like 3am rn and I need this running for an euler problem
-inline const BigInt& BigInt::operator*=(const BigInt& o) {
-	*this = *this * o;
+	// Greater-Than Operator Overload
+	bool Integer::operator>(const Integer& o) const {
+		if (sign && !o.sign) { return false; }		// Negative vs Positive
+		else if (!sign && o.sign) { return true; }	// Positive vs Negative
 
-	return *this;
-}
+		if (num.size() < o.num.size()) { return sign ? true : false; }	// +Short !> +Long
+		if (num.size() > o.num.size()) { return sign ? false : true; }	// -Long !> -Short
 
-inline const BigInt& BigInt::operator*=(CHUNK o) {	// This one is much easier
-	*this = *this * o;
+		for (int i = num.size() - 1; i > -1; --i) {
+			if (num[i] < o.num[i]) { return sign ? true : false; }
+			if (num[i] > o.num[i]) { return sign ? false : true; }
+		}
+
+		return false;	// ==
+	}
+
+
+	// Less-Than or Equal-To Operator Overload
+	bool Integer::operator<=(const Integer& o) const {
+		if (sign && !o.sign) { return true; }		// Negative vs Positive
+		else if (!sign && o.sign) { return false; }	// Positive vs Negative
+
+		if (num.size() < o.num.size()) { return sign ? false : true; }	// +Short < +Long
+		if (num.size() > o.num.size()) { return sign ? true : false; }	// -Long < -Short
+
+		for (int i = num.size() - 1; i > -1; --i) {
+			if (num[i] < o.num[i]) { return sign ? false : true; }
+			if (num[i] > o.num[i]) { return sign ? true : false; }
+		}
+
+		return true;	// ==
+	}
+
+
+	// Greater-Than or Equal-To Operator Overload
+	bool Integer::operator>=(const Integer& o) const {
+		if (sign && !o.sign) { return false; }		// Negative vs Positive
+		else if (!sign && o.sign) { return true; }	// Positive vs Negative
+
+		if (num.size() < o.num.size()) { return sign ? true : false; }	// +Short !> +Long
+		if (num.size() > o.num.size()) { return sign ? false : true; }	// -Long !> -Short
+
+		for (int i = num.size() - 1; i > -1; --i) {
+			if (num[i] < o.num[i]) { return sign ? true : false; }
+			if (num[i] > o.num[i]) { return sign ? false : true; }
+		}
+
+		return true;	// ==
+	}
+
 	
-	return *this;
-}
+	// Addition Overload
+	Integer Integer::operator+(const Integer& o) const {
+		Integer result;
 
-inline const BigInt& BigInt::operator/=(const BigInt& o) {
-	*this = *this / o;
+		size_t len = (num.size() > o.num.size() ? num.size() : o.num.size());
+		result.num.resize(len, 0);
 
-	return *this;
-}
+		for (int i = 0; i < len; ++i) {
+			result.num[i] = (i < num.size() ? (sign ? -num[i] : num[i]) : 0) + (i < o.num.size() ? (o.sign ? -o.num[i] : o.num[i]) : 0);
+		}
 
-inline const BigInt& BigInt::operator%=(const BigInt& o) {	// lol this is faster
-	*this = *this % o;
+		result.tweak_blocks();
 
-	return *this;
-}
+		return result;
+	}
 
-#pragma endregion
 
-#pragma region Unary Operands
-inline BigInt BigInt::operator-() const {
-	BigInt res = *this;
-	res.neg = !neg;
-	return res;
-}
+	// Subtraction Overload
+	Integer Integer::operator-(const Integer& o) const {
+		Integer result;
 
-inline BigInt BigInt::operator++(int) {
-	BigInt res = *this;
-	num[0] += (neg ? -1 : 1);
-	tweak(false, true);
-	return res;
-}
+		size_t len = (num.size() > o.num.size() ? num.size() : o.num.size());
+		result.num.resize(len, 0);
 
-inline BigInt BigInt::operator--(int) {
-	BigInt res = *this;
-	num[0] -= (neg ? -1 : 1);
-	tweak(false, true);
-	return res;
-}
+		for (int i = 0; i < len; ++i) {
+			result.num[i] = (i < num.size() ? (sign ? -num[i] : num[i]) : 0) - (i < o.num.size() ? (o.sign ? -o.num[i] : o.num[i]) : 0);
+		}
 
-inline const BigInt& BigInt::operator++() {
-	num[0] += (neg ? -1 : 1);
-	tweak(false, true);
-	return *this;
-}
+		result.tweak_blocks();
 
-inline const BigInt& BigInt::operator--() {
-	num[0] -= (neg ? -1 : 1);
-	tweak(false, true);
-	return *this;
-}
+		return result;
+	}
 
-#pragma endregion
 
-inline std::string BigInt::toString() const {
-	std::ostringstream oss;
-	oss << *this;
-	return oss.str();
-}
+	// Multiplication Overload (Object)
+	Integer Integer::operator*(const Integer& o) const {
+		Integer result;
+		result.num.resize(num.size() + o.num.size(), 0);
+		BLOCK_PRODUCT carry = 0;
+		int digi = 0;
 
-#pragma region Private Functions
+		for (;; ++digi) {
+			// Set signifigance of the carry
+			result.num[digi] = carry % BASE;
+			carry /= BASE;
+			
 
-inline void BigInt::tweak(bool onlyTrim, bool validSign) {
-	if (!onlyTrim) {	// God forbid there is ever a bug in this if statement
-		trunc();
+			// Continually loop across the blocks
+			bool found = false;
+			for (int i = digi < o.num.size() ? 0 : digi - o.num.size() + 1; i < num.size() && i <= digi; ++i) { 
+				// Find block product
+				BLOCK_PRODUCT prod = result.num[digi] + num[i] * (BLOCK_PRODUCT)o.num[digi - i];
 
-		// Everything fits, now we need to make all CHUNKS positive
-		if (chunksFixed()) {
-			neg = validSign ? false : !neg;
+				// Correct overflows
+				if (prod > MAX || prod < -MAX) {
+					carry += prod / BASE;
+					prod %= BASE;
+				}
+
+				// Modify vector
+				result.num[digi] = prod;
+				found = true;
+			}
+
+			// Result found, do no more math
+			if (!found) { break; }
+		}
+		
+		// Handle any remaining carry blocks
+		for (; carry > 0; ++digi) {
+			result.num[digi] = carry % BASE;
+			carry /= BASE;
+		}
+
+		result.tweak_blocks();
+
+		// Calculated sign
+		result.sign = (result.num.size() == 1 && result.num[0] == 0) ? false : (sign != o.sign);
+
+		return result;
+	}
+
+
+	// Multiplication Overload (Block)
+	Integer Integer::operator*(BLOCK n) {
+		Integer result;
+
+		BLOCK factor = abs(n);	// Factor to be multiplied (scale)
+		BLOCK carry = 0;		// Carry block
+
+		size_t len = num.size();
+		result.num.resize(len, 0);
+
+		for (int i = 0; i < len; ++i) {
+			BLOCK_PRODUCT prod = num[i] * (BLOCK_PRODUCT)n + carry;
+
+			if (prod > MAX || prod < -MAX) {	// Overflow fix
+				carry = prod / BASE;
+				prod %= BASE;
+			}
+			else { carry = 0; }
+
+			result.num[i] = prod;
+		}
+
+		if (carry > 0) { result.num.push_back(carry); }	// Append any hanging carry
+
+		result.tweak_blocks();
+		result.sign = (result.num.size() == 1 && result.num[0] == 0) ? false : (sign != n < 0);
+		
+		return result;
+	}
+
+
+	// Division overload
+	Integer Integer::operator/(const Integer& o) const {
+
+		// Division by zero exception
+		if (o.num.size() == 1 && o.num[0] == 0) {
+			throw IntegerException("Division by zero");
+		}
+
+
+		// Declare the denominator(+), numerator(+), quotient, and remainder
+		Integer denom = (o.sign ? -o : o), numer = (sign ? -*this : *this), quotient, remain;
+
+		quotient.num.resize(numer.num.size(), 0);
+
+		for (int i = numer.num.size() - 1; i > -1; --i) {
+			remain.num.insert(remain.num.begin(), numer.num[i]);
+			remain.tweak_blocks();
+			BLOCK count = denominator_in_remainder(remain, denom);
+			remain -= denom * count;
+			quotient.num[i] += count;
+		}
+
+		quotient.tweak_blocks();
+
+		quotient.sign = (quotient.num.size() == 1 && quotient.num[0] == 0) ? false : (sign != o.sign);
+
+		return quotient;
+	}
+
+
+	// Modulo overload
+	Integer Integer::operator%(const Integer& o) const {
+
+		// Division by zero exception
+		if (o.num.size() == 1 && o.num[0] == 0) {
+			throw IntegerException("Division by zero");
+		}
+
+		// Declare the denominator(+), numerator(+), and remainder
+		Integer denom = (o.sign ? -o : o), numer = (sign ? -*this : *this), remain;
+
+		for (int i = numer.num.size() - 1; i > -1; --i) {
+			remain.num.insert(remain.num.begin(), numer.num[i]);
+			remain.tweak_blocks();
+			BLOCK count = denominator_in_remainder(remain, denom);
+			remain -= denom * count;
+		}
+
+		remain.tweak_blocks();
+
+		remain.sign = (remain.num.size() == 1 && remain.num[0] == 0) ? false : (sign != o.sign);
+
+		return remain;
+	}
+
+
+	// Addition & Assignment Overload
+	const Integer& Integer::operator+=(const Integer& o) {
+		size_t len = num.size();
+		if (o.num.size() > len) {
+			len = o.num.size();
+			num.resize(len, 0);
+		}
+
+		for (int i = 0; i < len; ++i) {
+			num[i] = (i < num.size() ? (sign ? -num[i] : num[i]) : 0) + (i < o.num.size() ? (o.sign ? -o.num[i] : o.num[i]) : 0);
+		}
+
+		tweak_blocks();
+
+		return *this;
+	}
+
+
+	// Subtraction & Assignment Overload
+	const Integer& Integer::operator-=(const Integer& o) {
+		size_t len = num.size();
+		if (o.num.size() > len) {
+			len = o.num.size();
+			num.resize(len, 0);
+		}
+
+		for (int i = 0; i < len; ++i) {
+			num[i] = (i < num.size() ? (sign ? -num[i] : num[i]) : 0) - (i < o.num.size() ? (o.sign ? -o.num[i] : o.num[i]) : 0);
+		}
+
+		tweak_blocks();
+
+		return *this;
+	}
+
+	
+	// Multiplication & Assignment Overload (Object)
+	const Integer& Integer::operator*=(const Integer& o) {
+		// Cant think of an encompassing method of in place multiplication
+
+		*this = *this * o;
+
+		return *this;
+	}
+
+
+	// Multiplication & Assignment Overload (Block)
+	const Integer& Integer::operator*=(BLOCK n) {
+		// Cant think of an encompassing method of in place multiplication
+
+		*this = *this * n;
+
+		return *this;
+
+	}
+
+
+	// Division & Assignment Overload
+	const Integer& Integer::operator/=(const Integer& o) {
+		// Cant think of an encompassing method of in place division
+
+		*this = *this / o;
+
+		return *this;
+
+	}
+
+
+	// Modulo & Assignment Overload
+	const Integer& Integer::operator%=(const Integer& o) {
+		// Cant think of an encompassing method of in place modulo
+
+		*this = *this % o;
+
+		return *this;
+
+	}
+
+
+	// Unary Negative
+	Integer Integer::operator-() const {
+		Integer result = *this;
+		result.sign = !sign;
+
+		return result;
+	}
+
+
+	// Pre-increment
+	Integer Integer::operator++(int) {
+		Integer result = *this;
+		result.num[0] += (sign ? -1 : 1);
+
+		result.tweak_blocks();
+
+		return result;
+	}
+
+	// Pre-decrement
+	Integer Integer::operator--(int) {
+		Integer result = *this;
+		result.num[0] -= (sign ? -1 : 1);
+
+		result.tweak_blocks();
+
+		return result;
+	}
+
+	// Post-increment
+	const Integer& Integer::operator++() {
+		num[0] += (sign ? -1 : 1);
+		tweak_blocks();
+
+		return *this;
+	}
+
+	// Post-decrement
+	const Integer& Integer::operator--() {
+		num[0] -= (sign ? -1 : 1);
+		tweak_blocks();
+
+		return *this;
+	}
+
+
+	// Bitwise And Overload
+	Integer Integer::operator&(Integer& o) {
+		std::string result = "";
+		std::string bin = get_binary();
+		std::string o_bin = o.get_binary();
+
+		while (bin.length() < o_bin.length()) {
+			bin = "0" + bin;
+		}
+		while (o_bin.length() < bin.length()) {
+			o_bin = "0" + o_bin;
+		}
+
+		for (int i = 0; i < bin.length(); ++i) {
+			if (bin[i] == '1' && o_bin[i] == '1') {
+				result += "1";
+			}
+			else {
+				result += "0";
+			}
+		}
+
+		return from_binary(result);
+	}
+
+	// Bitwise Or Overload
+	Integer Integer::operator|(Integer& o) {
+		std::string result = "";
+		std::string bin = get_binary();
+		std::string o_bin = o.get_binary();
+
+		while (bin.length() < o_bin.length()) {
+			bin = "0" + bin;
+		}
+		while (o_bin.length() < bin.length()) {
+			o_bin = "0" + o_bin;
+		}
+
+		for (int i = 0; i < bin.length(); ++i) {
+			if (bin[i] == '1' || o_bin[i] == '1') {
+				result += "1";
+			}
+			else {
+				result += "0";
+			}
+		}
+
+		return from_binary(result);
+	}
+
+
+	// Bitwise Xor Overload
+	Integer Integer::operator^(Integer& o) {
+		std::string result = "";
+		std::string bin = get_binary();
+		std::string o_bin = o.get_binary();
+
+		while (bin.length() < o_bin.length()) {
+			bin = "0" + bin;
+		}
+		while (o_bin.length() < bin.length()) {
+			o_bin = "0" + o_bin;
+		}
+
+		for (int i = 0; i < bin.length(); ++i) {
+			if (bin[i] == '1' != o_bin[i] == '1') {
+				result += "1";
+			}
+			else {
+				result += "0";
+			}
+		}
+
+		return from_binary(result);
+	}
+
+
+	// Shift Left Overload
+	Integer Integer::operator<<(int n) {
+		Integer result = *this;
+
+		while (n > 0) {
+			result /= 2;
+			--n;
+		}
+
+		return result;
+	}
+
+
+	// Shift Right Overload
+	Integer Integer::operator>>(int n) {
+		Integer result = *this;
+
+		while (n > 0) {
+			result *= 2;
+			--n;
+		}
+
+		return result;
+	}
+
+
+	
+
+
+	// Construct From String
+	void Integer::construct_from_string(std::string str) {
+		if (str[0] == '-') {
+			sign = 1;			// Negative check
+			str = str.substr(1);
+		}
+		else { sign = 1; }
+
+		// Remove leading zeros
+		while (str[0] == '0') { str = str.substr(1); }
+		if (str == "") { str = "0"; }	// Zero fix
+
+
+		// No overhangs
+		int i = str.length() - DIGITS;
+		if (i > 0) {
+			while (i >= 0) {
+				num.push_back(std::stoi(str.substr(i, 9)));
+				str = str.substr(0, i);
+				i -= DIGITS;
+			}
+		}
+		else {
+			num.push_back(std::stoi(str));
+			str = "";
+		}
+		
+
+		// Remaining overhangs
+		if (str.length() > 0) {
+			num.push_back(std::stoi(str.substr(0, i + DIGITS)));
+		}
+	}
+
+
+	// Tweak Blocks
+	void Integer::tweak_blocks() {
+		
+
+		/**
+		* Borrow / Carry
+		*/
+		for (int i = 0; i < num.size(); ++i) {
+			if (num[i] > MAX || num[i] < -MAX) {
+				if (i + 1 >= num.size()) {
+					// Push back the carried block
+					num.push_back(num[i] / BASE);
+				}
+				else {
+					// Add the carry to the next index
+					num[i + 1] += num[i] / BASE;
+				}
+
+				// Truncate the overflowed chunk
+				num[i] %= BASE;
+			}
+		}
+
+
+		/**
+		* Fix any mismatched chunks
+		* Depending on what operation preceded the execution of this function
+		* many or all of the chunks may be negative and that breaks the storage
+		* norm and all functionality
+		*/
+		bool is_signed = false;
+		int i = num.size() - 1;
+		while (i > -1) {
+			if (num[i] != 0) {	// Set precedent for which side of the fix
+				is_signed = num[i--] < 0;
+				break;
+			}
+			--i;
+		}
+
+		// Yes I tried to ternary this, no I don't want to talk about it
+
+		if (is_signed) {			// Negtative fix
+			while (i > -1) {		// Loop across remaining blocks (less signifigant)
+				if (num[i] > 0) {
+					int ii = i + 1, iii = 0;	// Next index and offset
+
+					while (ii < num.size() && num[ii] == 0) {	// Loop across remaining (more signifigant)
+
+						++num[ii];
+						num[i] -= BASE;
+
+						while (iii > 0) {			// Flip sign
+							num[i + iii] = -MAX;
+							--iii;
+						}
+
+						++ii, ++iii;
+					}
+				}
+				--i;
+			}
+		}
+		else {	// Positive fix
+			while (i > -1) {		// Loop across remaining blocks (less signifigant)
+				if (num[i] < 0) {
+					int ii = i + 1, iii = 0;	// Next index and offset
+
+					while (ii < num.size() && num[ii] == 0) {	// Loop acros remaining (more signifigant)
+
+						--num[ii];
+						num[i] += BASE;
+
+						while (iii > 0) {			// Flip sign
+							num[i + iii] = MAX;
+							--iii;
+						}
+
+						++ii, ++iii;
+					}
+				}
+				--i;
+			}
+		}
+
+
+		if (is_signed) {
+			sign = !sign;
 			for (int i = 0; i < num.size(); ++i) {
-				num[i] = abs(num[i]);	// I'm embarrassed that I had a bug here :(
+				num[i] = abs(num[i]);
 			}
 		}
 		else {
-			neg = ((num.size() == 1 && num[0] == 0) || !validSign) ? neg : true;
+			sign = sign;	// Doesnt change
 		}
+
+
+		trim_leading();	// Trim any remaining leading zeros
 	}
 
-	trimZeros();
-}
 
-inline void BigInt::trimZeros() {
-	for (int i = num.size() - 1; i > 0; --i) {	// Leave 1 zero if its zero, so many range errors D:
-		if (num[i] != 0) { return; }
-		else { num.erase(num.begin() + i); }
-		// TODO check efficiency, trying something new instead of resizing
-	}
-}
-
-inline void BigInt::trunc() {
-	for (int i = 0; i < num.size(); ++i) {
-		if (num[i] > MAX_VALUE || num[i] < -MAX_VALUE) {	// CHUNK has surpassed limits
-			div_t div = intDiv(num[i], BASE);	// Correct
-			num[i] = div.rem;
-			if (i + 1 >= num.size()) { num.push_back(div.quot); }	// This has crashed so many times D:
-			else { num[i + 1] += div.quot; }
-		}
-	}
-}
-
-// This function alone is the reason my hairline is visible from the back
-inline bool BigInt::chunksFixed() {
-	bool isNeg = false;	// Decides how much I'm going to hate this
-	int i = num.size() - 1;
-	for (; i > -1; --i) {
-		if (num[i] != 0) {
-			isNeg = num[i--] < 0;
-			break;
-		}
-	}
-	
-	// i tried to ternary this control statement, its not worth the hair loss, but it'd be really funny
-	// TODO go bald
-	if (isNeg) {
-		for (; i > -1; --i) {	// Pick up where we left off at the problem CHUNK
-			if (num[i] > 0) {
-				int index = i + 1, ii = 0;
-				for (; index < num.size() && num[index] == 0; ++index, ++ii) {
-					++num[index];
-					num[i] -= BASE;		// Swippity swap
-					for (; ii > 0; --ii) {
-						num[i + ii] = -MAX_VALUE;
-					}
-				}
+	// Trim Leading (zeros)
+	void Integer::trim_leading() {
+		int i = num.size() - 1;
+		while (i > 0) {
+			if (num[i] == 0) {
+				num.erase(num.begin() + i);
 			}
-		}
-	}
-	else {	// Dear god not again
-		for (; i > -1; --i) {
-			if (num[i] < 0) {
-				int index = i + 1, ii = 0;
-				for (; index < num.size() && num[index] == 0; ++index, ++ii) {
-					--num[index];
-					num[i] += BASE;		// Swippity swap, part 2, "the swappening"
-					for (; ii > 0; --ii) {
-						num[i + ii] = MAX_VALUE;
-					}
-				}
-			}
+			else { return; } // Skip the rest
+			--i;
 		}
 	}
 
-	return isNeg;
-}
-
-inline void BigInt::multByChunk(CHUNK o, std::vector<CHUNK>& num) {
-	CHUNK c = 0;
-
-	for (int i = 0; i < num.size(); ++i) {
-		CHUNK_PROD prod = num[i] * (CHUNK_PROD)o + c;	// Once again to stop overflows
-		if (prod > MAX_VALUE || prod < -MAX_VALUE) {	// Trunc func
-			lldiv_t div = llongDiv(prod, BASE);
-			c = div.quot;
-			prod = div.rem;
-		}
-		else { c = 0; }
-		num[i] = prod;
+	// Small helper for the division/modulo helper
+	div_t quot_and_rem(int num, int den) {
+		div_t result;
+		result.quot = num / den;
+		result.rem = num % den;
+		return result;
 	}
-	// Handle carry
-	if (c > 0) { num.push_back(c); }
-	// Why can't all functions be like this :(
-}
 
-inline CHUNK BigInt::denInRem(const BigInt& rem, const BigInt& den) {
-	CHUNK min = 0, max = MAX_VALUE;
+	// Denominator In Remainder
+	BLOCK Integer::denominator_in_remainder(const Integer& rem, const Integer& den) {
+		BLOCK min = 0, max = MAX;
+
+		while (max > min) {
+			div_t test = quot_and_rem(min + max, 2);
+			BLOCK avg = (test.rem) ? (test.quot + 1) : test.quot;
+
+			// Hanging on max = (min + 1)
+
+			Integer product = den * avg;
+
+			if (rem == product) { return avg; }
+			else if (rem > product) { min = avg; }
+			else { max = avg - 1; }
+
+		}
+		
+		return min;
+	}
+
 	
-	while (max > min) {
-		CHUNK avg = max + min;
-		div_t div = intDiv(avg, 2);
-		avg = div.rem ? (div.quot + 1) : div.quot;	// I feel so fancy
-		BigInt prod = den * avg;
+	// Get Binary
+	std::string Integer::get_binary() {
+		std::string bin = "";
+		Integer num = *this;
 
-		if (rem == prod) { return avg; }
-		else if (rem > prod) { min = avg; }
-		else { max = avg - 1; }
+		Integer power = 1;
+		while (power <= num) {
+			power *= 2;
+		}
+
+		while (power > 0) {
+			if (power <= num) {
+				num -= power;
+				bin += "1";
+			}
+			else {
+				bin += "0";
+			}
+			power /= 2;
+		}
+
+		// Trim any leading zeros
+		int offset = bin.find('1');
+		return bin.substr(offset);
 	}
 
-	return min;
-}
+	
+	// From Binary
+	Integer Integer::from_binary(const std::string& str) {
+		Integer num = 0;
+		Integer power = 1;
 
-#pragma endregion
-
-
-#pragma region Non-Member Functions
-inline std::ostream& operator<<(std::ostream& os, const BigInt& o) {
-	if (o.neg) { os << '-'; }
-
-	bool firstCHUNK = true;
-	for (int i = o.num.size() - 1; i > -1; --i) {
-		if (firstCHUNK) {	// dont add extraneous 0's
-			os << o.num[i];
-			firstCHUNK = false;
+		for (int i = str.length() - 1; i > -1; --i) {
+			if (str[i] == '1') {
+				num += power;
+				
+			}
+			power *= 2;
 		}
-		else {
-			os << std::setfill('0') << std::setw(NUM_DIGIS) << o.num[i];
-		}
+
+		return num;
 	}
 
-	return os;
+	////////////////
+	// Non Member //
+	////////////////
+	
+	// Power (Primitive)
+	Integer pow(int base, int exp) {
+		if (exp < 0) {
+			throw IntegerException("Cannot raise base to a negative number");
+		}
+		else if (exp == 0 || base == 1) { return Integer(1); }
+		Integer result = 1;
+
+		while (exp > 0) {
+			result *= base;
+			--exp;
+		}
+
+		return result;
+	}
+
+
+	// Power (Object)
+	Integer pow(const Integer& base, int exp) {
+		if (exp < 0) {
+			throw IntegerException("Cannot raise base to a negative number");
+		}
+		else if (exp == 0 || base == 1) { return Integer(1); }
+		Integer result = 1;
+
+		while (exp > 0) {
+			result *= base;
+			--exp;
+		}
+
+		return result;
+	}
 }
 
-inline std::istream& operator<<(std::istream& is, BigInt& o) {
-	std::string str;
 
-	is >> str;
-	o.fromString(str);
 
-	return is;
-}
-#pragma endregion
-
-#endif BIGINT_HPP
+#endif // BIGINT_HPP
