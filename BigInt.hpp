@@ -1211,7 +1211,7 @@ namespace big {
 			sign = 1;			// Negative check
 			str = str.substr(1);
 		}
-		else { sign = 1; }
+		else { sign = 0; }
 
 		// Remove leading zeros
 		while (str[0] == '0') { str = str.substr(1); }
