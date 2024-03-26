@@ -50,56 +50,56 @@ namespace big {
 
 		/**
 		* Integer Constructor
-		* 
+		*
 		* @param n integer to be used when creating the big::Integer object
 		*/
 		Integer(int n);
 
 		/**
 		* Long Constructor
-		* 
+		*
 		* @param n long to be used when creating the big::Integer object
 		*/
 		Integer(long n);
 
 		/**
 		* LLong Constructor
-		* 
+		*
 		* @param n long long to be used when creating the big::Integer object
 		*/
 		Integer(long long n);
 
 		/**
 		* uInt Constructor
-		* 
+		*
 		* @param n unsigned integer to be used when creating the big::Integer object
 		*/
 		Integer(unsigned int n);
 
 		/**
 		* uLong Constructor
-		* 
+		*
 		* @param n unsigned long to be used when creating the big::Integer object
 		*/
 		Integer(unsigned long n);
 
 		/**
 		* uLLong Constructor
-		* 
+		*
 		* @param n unsigned long long to be used when creating the big::Integer object
 		*/
 		Integer(unsigned long long n);
 
 		/**
 		* Char Array Constructor
-		* 
+		*
 		* @param str char array to be used when creating the big::Integer object
 		*/
 		Integer(const char* str);
 
 		/**
 		* std::string Constructor
-		* 
+		*
 		* @param str std::string object to be used when creating the big::Integer object
 		*/
 		Integer(const std::string& str);
@@ -111,7 +111,7 @@ namespace big {
 
 		/**
 		* Copy Constructor
-		* 
+		*
 		* @param o (Other) big::Integer object to be copied
 		*/
 		Integer(const Integer& o);
@@ -122,14 +122,14 @@ namespace big {
 
 		/**
 		* Integer Object Assignment
-		* 
+		*
 		* @param o (Other) Integer object to be copied
 		*/
 		Integer& operator=(const Integer& o);
 
 		/**
 		* Int Assignment
-		* 
+		*
 		* @param n integer to be used when copying
 		*/
 		Integer& operator=(int n);
@@ -198,42 +198,42 @@ namespace big {
 
 		/**
 		* Equivalence Operator Overload
-		* 
+		*
 		* @param o (Other) Integer object being compared against
 		*/
 		bool operator==(const Integer& o) const;
 
 		/**
 		* Not-Equivalence Operator Overload
-		* 
+		*
 		* @param o (Other) Integer object being compared against
 		*/
 		bool operator!=(const Integer& o) const;
 
 		/**
 		* Less-Than Operator Overload
-		* 
+		*
 		* @param o (Other) Integer object being compared against
 		*/
 		bool operator<(const Integer& o) const;
 
 		/**
 		* Greater-Than Operator Overload
-		* 
+		*
 		* @param o (Other) Integer object being compared against
 		*/
 		bool operator>(const Integer& o) const;
 
 		/**
 		* Less-Than or Equal-To Operator Overload
-		* 
+		*
 		* @param o (Other) Integer object being compared against
 		*/
 		bool operator<=(const Integer& o) const;
 
 		/**
 		* Greater-Than or Equal-To Operator Overload
-		* 
+		*
 		* @param o (Other) Integer object being compared against
 		*/
 		bool operator>=(const Integer& o) const;
@@ -244,7 +244,7 @@ namespace big {
 
 		/**
 		* Addition Overload
-		* 
+		*
 		* @param o (Other) Integer object to be used when adding
 		*/
 		Integer operator+(const Integer& o) const;
@@ -272,14 +272,14 @@ namespace big {
 
 		/**
 		* Division Overload
-		* 
+		*
 		* @param o (Other) Integer object to be used when dividing
 		*/
 		Integer operator/(const Integer& o) const;
 
 		/**
 		* Modulo Overload
-		* 
+		*
 		* @param o (Other) Integer object to be used when finding remainder
 		*/
 		Integer operator%(const Integer& o) const;
@@ -363,14 +363,14 @@ namespace big {
 
 		/**
 		* Bitwise And Overload
-		* 
+		*
 		* @param o (Other) Integer object to be used when performing the AND operation
 		*/
 		Integer operator&(Integer& o);
 
 		/*
 		* Bitwise Or Overload
-		* 
+		*
 		* @param o (Other) Integer object to be used when performing the OR operation
 		*/
 		Integer operator|(Integer& o);
@@ -384,7 +384,7 @@ namespace big {
 
 		/**
 		* Shift Left Overload
-		* 
+		*
 		* @param n Number of shifts
 		*/
 		Integer operator<<(int n);
@@ -409,21 +409,21 @@ namespace big {
 
 		/**
 		* Tweak Blocks
-		* 
+		*
 		* Fixes any (over/under)flowing Block
 		*/
 		void tweak_blocks();
 
 		/**
 		* Trim Leading (zeros)
-		* 
+		*
 		* Trims any leading zeros that are taking up unnecessary space
 		*/
 		void trim_leading();
 
 		/**
 		* Denominator In Remainder
-		* 
+		*
 		* @param rem Remainder
 		* @param den Denominator
 		*/
@@ -431,14 +431,14 @@ namespace big {
 
 		/**
 		* Get Binary
-		* 
+		*
 		* @return bin Binary representation in string form
 		*/
 		std::string get_binary();
 
 		/**
 		* From Binary
-		* 
+		*
 		* @return num Integer representation
 		*/
 		Integer from_binary(const std::string& str);
@@ -513,7 +513,7 @@ namespace big {
 		} while (n > 0);
 	}
 
-	
+
 	// uLLong Constructor
 	Integer::Integer(unsigned long long n) {
 		sign = 0;
@@ -569,9 +569,9 @@ namespace big {
 	Integer& Integer::operator=(int n) {
 		num.clear();
 
-		if (n == 0) { sign = 1; }
-		else if (n > 0) { sign = 1; }
-		else { sign = 0, n = -n; }
+		if (n == 0) { sign = 0; }
+		else if (n > 0) { sign = 0; }
+		else { sign = 1, n = -n; }
 
 		while (n > 0) {
 			num.push_back(n % BASE);
@@ -586,9 +586,9 @@ namespace big {
 	Integer& Integer::operator=(long n) {
 		num.clear();
 
-		if (n == 0) { sign = 1; }
-		else if (n > 0) { sign = 1; }
-		else { sign = 0, n = -n; }
+		if (n == 0) { sign = 0; }
+		else if (n > 0) { sign = 0; }
+		else { sign = 1, n = -n; }
 
 		while (n > 0) {
 			num.push_back(n % BASE);
@@ -603,9 +603,9 @@ namespace big {
 	Integer& Integer::operator=(long long n) {
 		num.clear();
 
-		if (n == 0) { sign = 1; }
-		else if (n > 0) { sign = 1; }
-		else { sign = 0, n = -n; }
+		if (n == 0) { sign = 0; }
+		else if (n > 0) { sign = 0; }
+		else { sign = 1, n = -n; }
 
 		while (n > 0) {
 			num.push_back(n % BASE);
@@ -620,7 +620,7 @@ namespace big {
 	Integer& Integer::operator=(unsigned int n) {
 		num.clear();
 
-		sign = 1;
+		sign = 0;
 
 		while (n > 0) {
 			num.push_back(n % BASE);
@@ -635,7 +635,7 @@ namespace big {
 	Integer& Integer::operator=(unsigned long n) {
 		num.clear();
 
-		sign = 1;
+		sign = 0;
 
 		while (n > 0) {
 			num.push_back(n % BASE);
@@ -650,7 +650,7 @@ namespace big {
 	Integer& Integer::operator=(unsigned long long n) {
 		num.clear();
 
-		sign = 1;
+		sign = 0;
 
 		while (n > 0) {
 			num.push_back(n % BASE);
@@ -700,7 +700,7 @@ namespace big {
 
 		return os;
 	}
-	
+
 
 	// to_string()
 	std::string to_string(const Integer& n) {
@@ -714,7 +714,7 @@ namespace big {
 	bool Integer::operator==(const Integer& o) const {
 		if (sign != o.sign) { return false; }
 		if (num.size() != o.num.size()) { return false; }
-		
+
 		for (int i = 0; i < num.size(); ++i) {
 			if (num[i] != o.num[i]) { return false; }
 		}
@@ -743,7 +743,7 @@ namespace big {
 
 		if (num.size() < o.num.size()) { return sign ? false : true; }	// +Short < +Long
 		if (num.size() > o.num.size()) { return sign ? true : false; }	// -Long < -Short
-		
+
 		for (int i = num.size() - 1; i > -1; --i) {
 			if (num[i] < o.num[i]) { return sign ? false : true; }
 			if (num[i] > o.num[i]) { return sign ? true : false; }
@@ -803,7 +803,7 @@ namespace big {
 		return true;	// ==
 	}
 
-	
+
 	// Addition Overload
 	Integer Integer::operator+(const Integer& o) const {
 		Integer result;
@@ -849,11 +849,11 @@ namespace big {
 			// Set signifigance of the carry
 			result.num[digi] = carry % BASE;
 			carry /= BASE;
-			
+
 
 			// Continually loop across the blocks
 			bool found = false;
-			for (int i = digi < o.num.size() ? 0 : digi - o.num.size() + 1; i < num.size() && i <= digi; ++i) { 
+			for (int i = digi < o.num.size() ? 0 : digi - o.num.size() + 1; i < num.size() && i <= digi; ++i) {
 				// Find block product
 				BLOCK_PRODUCT prod = result.num[digi] + num[i] * (BLOCK_PRODUCT)o.num[digi - i];
 
@@ -871,7 +871,7 @@ namespace big {
 			// Result found, do no more math
 			if (!found) { break; }
 		}
-		
+
 		// Handle any remaining carry blocks
 		for (; carry > 0; ++digi) {
 			result.num[digi] = carry % BASE;
@@ -913,7 +913,7 @@ namespace big {
 
 		result.tweak_blocks();
 		result.sign = (result.num.size() == 1 && result.num[0] == 0) ? false : (sign != n < 0);
-		
+
 		return result;
 	}
 
@@ -1009,7 +1009,7 @@ namespace big {
 		return *this;
 	}
 
-	
+
 	// Multiplication & Assignment Overload (Object)
 	const Integer& Integer::operator*=(const Integer& o) {
 		// Cant think of an encompassing method of in place multiplication
@@ -1202,7 +1202,7 @@ namespace big {
 	}
 
 
-	
+
 
 
 	// Construct From String
@@ -1231,7 +1231,7 @@ namespace big {
 			num.push_back(std::stoi(str));
 			str = "";
 		}
-		
+
 
 		// Remaining overhangs
 		if (str.length() > 0) {
@@ -1242,7 +1242,7 @@ namespace big {
 
 	// Tweak Blocks
 	void Integer::tweak_blocks() {
-		
+
 
 		/**
 		* Borrow / Carry
@@ -1378,11 +1378,11 @@ namespace big {
 			else { max = avg - 1; }
 
 		}
-		
+
 		return min;
 	}
 
-	
+
 	// Get Binary
 	std::string Integer::get_binary() {
 		std::string bin = "";
@@ -1409,7 +1409,7 @@ namespace big {
 		return bin.substr(offset);
 	}
 
-	
+
 	// From Binary
 	Integer Integer::from_binary(const std::string& str) {
 		Integer num = 0;
@@ -1418,7 +1418,7 @@ namespace big {
 		for (int i = str.length() - 1; i > -1; --i) {
 			if (str[i] == '1') {
 				num += power;
-				
+
 			}
 			power *= 2;
 		}
@@ -1429,7 +1429,7 @@ namespace big {
 	////////////////
 	// Non Member //
 	////////////////
-	
+
 	// Power (Primitive)
 	Integer pow(int base, int exp) {
 		if (exp < 0) {
