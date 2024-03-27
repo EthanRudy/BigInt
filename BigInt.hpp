@@ -396,6 +396,31 @@ namespace big {
 		*/
 		Integer operator>>(int n);
 
+		//////////
+		// MISC //
+		//////////
+
+		/**
+		* Get Length (Chunk)
+		* 
+		* @returns the length of the num vector
+		*/
+		unsigned int getLength();
+
+		/**
+		* Get Length (Digits)
+		* 
+		* @returns the number of digits in the num vector
+		*/
+		unsigned int getDigitLength();
+
+		/**
+		* Get Chunk
+		* 
+		* @returns the chunk at a specified index
+		*/
+		unsigned int getChunk(unsigned int n);
+
 	protected:
 	private:
 		std::vector<BLOCK> num;
@@ -1202,6 +1227,34 @@ namespace big {
 	}
 
 
+	//  Get Length (Chunk)
+	unsigned int Integer::getLength() {
+		return num.size();
+	}
+
+
+	// Get Length (Digits)
+	unsigned int Integer::getDigitLength() {
+		int digits = 0;
+		for (int i = 0; i < num.size() - 1; ++i) {
+			digits += 9;
+		}
+
+		int n = num[num.size() - 1];
+		while (n > 0) {
+			n %= 10;
+			++digits;
+		}
+
+		return digits;
+	}
+
+	// Get Chunk
+	unsigned int Integer::getChunk(unsigned int n) {
+		return num[n];
+	}
+
+
 
 
 
@@ -1461,6 +1514,56 @@ namespace big {
 		}
 
 		return result;
+	}
+
+	// Random (range)
+	Integer random(big::Integer min, big::Integer max) {
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_int_distribution<> dist(1, 1000000000);
+
+		int minSize = min.getLength(), maxSize = max.getLength();
+		int size;
+		if (minSize == maxSize) { size = minSize; }
+		else {
+			size = rand() % (maxSize - minSize) + minSize;
+		}
+
+		int minChunk = min.getChunk(minSize - 1), maxChunk = max.getChunk(maxSize - 1);
+		int diff = maxChunk - minChunk;
+		if (diff == 0) { diff = 1; }
+
+		Integer num;
+		big::Integer newChunk;
+		for (int i = 0; i < size - 1; ++i) {
+			newChunk = dist(gen);
+			if (i != 0) {
+				newChunk *= BASE * i;
+			}
+
+			num += newChunk;
+		}
+
+		if (minSize == maxSize) {
+			if (minChunk == maxChunk) { newChunk = minChunk; }
+			else {
+				newChunk = dist(gen) % (diff)+minChunk;
+			}
+		}
+		else if (size < maxSize) {
+			newChunk = dist(gen) % BASE;
+		}
+
+		if (size == 1) {
+			num = newChunk;
+		}
+		else {
+			num += (newChunk * (BASE * size));
+		}
+
+		//std::cout << "\n" << min << " " << num << " " << max << "\n";
+
+		return num;
 	}
 }
 
