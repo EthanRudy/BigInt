@@ -1,34 +1,31 @@
 # big::Integer Documentation
-
-# Currently using Wikilink format, as I wrote this in Obsidian, I will eventually translate all the links to a Github friendly markdown format.
-
 ## Type Definitions
 #### BLOCK (int)
 	typedef int BLOCK;
-The [[#BLOCK (int)|BLOCK]] data type is the base structure of every [[#big Integer Documentation|big::Integer]]. A [[#BLOCK (int)|BLOCK]] is an enumeration of the integer type, as we want it to have a range of around 9 digits. We choose 9 digits (1 billion), to reduce iterations in computations whilst also staying safe from overflows
+The [BLOCK](#BLOCK%20(int)) data type is the base structure of every [big::Integer](#Default%20Constructor). A [BLOCK](#BLOCK%20(int)) is an enumeration of the integer type, as we want it to have a range of around 9 digits. We choose 9 digits (1 billion), to reduce iterations in computations whilst also staying safe from overflows
 #### BLOCK_PRODUCT
 	typedef long long BLOCK_PRODUCT;
-The [[#BLOCK_PRODUCT|BLOCK_PRODUCT]] is an intermediate type primarily used in multiplication. Since we have to multiply [[#BLOCK (int)|BLOCKs]], we need a data type large enough to hold up to ~18 digits without over/underflow. Long Long provides this functionality.
+The [BLOCK_PRODUCT](#BLOCK_PRODUCT) is an intermediate type primarily used in multiplication. Since we have to multiply [BLOCKs](#BLOCK%20(int)), we need a data type large enough to hold up to ~18 digits without over/underflow. Long Long provides this functionality.
 ## Constants
 #### MIN
 	const BLOCK MIN = 0;
-Holds the minimum value of a [[#BLOCK (int)|BLOCK]] at any given time. If a [[#BLOCK (int)|BLOCK]] is less than MIN, we must borrow until all BLOCKS are positive, [[#BLOCK (int)|BLOCKs]] includes changing the entire sign and size of the [[#big Integer Documentation|big::Integer]]
+Holds the minimum value of a [BLOCK](#BLOCK%20(int)) at any given time. If a [BLOCK](#BLOCK%20(int)) is less than MIN, we must borrow until all BLOCKS are positive, [BLOCKs](#BLOCK%20(int)) includes changing the entire sign and size of the  [big::Integer](#Default%20Constructor)
 #### MAX
 	const BLOCK MAX = 999999999;
-Holds the maximum value of a [[#BLOCK (int)|BLOCK]] at any given time. If a [[#BLOCK (int)|BLOCK]] is greater than MAX, we must carry until all [[#BLOCK (int)|BLOCKs]] are <= 999,999,999, this includes appending more [[#BLOCK (int)|BLOCKs]] to the [[#big Integer Documentation|big::Integer]]
+Holds the maximum value of a [BLOCK](#BLOCK%20(int)) at any given time. If a [BLOCK](#BLOCK%20(int)) is greater than MAX, we must carry until all [BLOCKs](#BLOCK%20(int)) are <= 999,999,999, this includes appending more [BLOCKs](#BLOCK%20(int)) to the [big::Integer](#Default%20Constructor)
 #### BASE
 	const BLOCK BASE = 1000000000;
-Stores the base used when constructing & truncating [[#BLOCK (int)|BLOCKs]]. One can think of [[#big Integer Documentation|big::Integer]] using a base-1000000000 number system, where each digit is still base-10. Sounds insane, trust me it's not.
+Stores the base used when constructing & truncating [BLOCKs](#BLOCK%20(int)). One can think of [big::Integer](#Default%20Constructor) using a base-1000000000 number system, where each digit is still base-10. Sounds insane, trust me it's not.
 #### DIGITS
 	const int DIGITS = 9;
-Stores the amount of digits each block takes up. Used in output manipulation, aka. filling zeros in the middle of [[#BLOCK (int)|BLOCKs]].
+Stores the amount of digits each block takes up. Used in output manipulation, aka. filling zeros in the middle of [BLOCKs](#BLOCK%20(int)).
 ## Member Variables
 #### num
 	std::vector<BLOCK> num;
-The primary storage of the [[#big Integer Documentation|big::Integer]]. Big-endian order,
+The primary storage of the [big::Integer](#Default%20Constructor). Big-endian order,
 #### sign
 	bool sign;
-Denotes what sign the [[#big Integer Documentation|big::Integer]] is. Mimics the sign bit behavior used in binary numbers.
+Denotes what sign the [big::Integer](#Default%20Constructor) is. Mimics the sign bit behavior used in binary numbers.
 ```
 sign == 0 : num >= 0
 sign == 1 : num < 0
@@ -38,7 +35,7 @@ sign == 1 : num < 0
 
 ### Constructors
 #### Default Constructor
-Initializes the [[#big Integer Documentation|big::Integer]] to a default value of 0
+Initializes the [big::Integer](#Default%20Constructor) to a default value of 0
 ##### Source:
 ```c++
 Integer::Integer() {
@@ -53,7 +50,7 @@ int main() {
 }
 ```
 #### Signed Integer Constructor(s)
-Initializes the [[#big Integer Documentation|big::Integer]] to a passed value of type { *int*, *long*, *long long* }
+Initializes the [big::Integer](#Default%20Constructor) to a passed value of type { *int*, *long*, *long long* }
 ##### Source:
 ```cpp
 Integer::Integer({int, long, long long} n) {
@@ -78,7 +75,7 @@ int main() {
 }
 ```
 #### Unsigned Integer Constructor(s)
-Initializes the [[#big Integer Documentation|big::Integer]] to a passed value of type *unsigned* { *int*, *long*, *long long* }. The only difference from the signed constructor is the removal of the sign logic, as all unsigned values are > -1.
+Initializes the [big::Integer](#Default%20Constructor) to a passed value of type *unsigned* { *int*, *long*, *long long* }. The only difference from the signed constructor is the removal of the sign logic, as all unsigned values are > -1.
 ##### Source:
 ```cpp
 Integer::Integer(unsigned {int, long, long long} n) {
@@ -97,7 +94,7 @@ int main() {
 }
 ```
 #### Character Constructor(s)
-Initializes the [[Documentation#big Integer Documentation|big::Integer]] to the decimal representation of the passed *char* array or *std::string* object using the [[#Construct From String|construct_from_string]]() private method.
+Initializes the [big::Integer](#Default%20Constructor) to the decimal representation of the passed *char* array or *std::string* object using the [construct_from_string()](#Construct%20from%20String) private method.
 ##### Source:
 ```cpp
 Integer::Integer(const char* str) {
@@ -121,7 +118,7 @@ int main() {
 }
 ```
 #### Copy Constructor
-Initializes the [[Documentation#big Integer Documentation|big::Integer]] to the[[Documentation#big Integer Documentation|big::Integer]] *o*. 
+Initializes the [big::Integer](#Default%20Constructor) to the[big::Integer](#Default%20Constructor) *o*. 
 NOTE: This is **NOT** an assignment
 ##### Source:
 ```cpp
@@ -143,7 +140,7 @@ int main() {
 ```
 
 #### Deconstructor
-Deconstructs and frees up memory reserved by the [[Documentation#big Integer Documentation|big::Integer]]
+Deconstructs and frees up memory reserved by the [big::Integer](#Default%20Constructor)
 ##### Source:
 ```cpp
 Integer::~Integer() {
@@ -161,9 +158,9 @@ int main() {
 }
 ```
 ### Assignment Operands
-Assignment Operands follow the patter of constructors. The main difference is the presence of the `num.clear();`, to clear any previous value before appending more [[#BLOCK (int)|BLOCKs]].
+Assignment Operands follow the patter of constructors. The main difference is the presence of the `num.clear();`, to clear any previous value before appending more [BLOCKs](#BLOCK%20(int)).
 #### big::Integer Assignment
-Assigns the value of a [[Documentation#big Integer Documentation|big::Integer]] to the value of the passed [[Documentation#big Integer Documentation|big::Integer]] *o*
+Assigns the value of a [big::Integer](#Default%20Constructor) to the value of the passed [big::Integer](#Default%20Constructor) *o*
 ##### Source:
 ```cpp
 Integer& Integer::operator=(const Integer& o) {
@@ -186,7 +183,7 @@ int main() {
 ```
 
 #### Signed Integer Assignment(s)
-Assigns the value of a [[Documentation#big Integer Documentation|big::Integer]] to the value of the passed { *int*, *long*, *long long* }
+Assigns the value of a [big::Integer](#Default%20Constructor) to the value of the passed { *int*, *long*, *long long* }
 ##### Source:
 ```cpp
 Integer& Integer::operator=({int, long, long long} n) {
@@ -212,7 +209,7 @@ int main() {
 ```
 
 #### Unsigned Integer Assignment(s)
-Assigns the value of a [[Documentation#big Integer Documentation|big::Integer]] to the value of the passed *unsigned* { *int*, *long*, *long long* }
+Assigns the value of a [big::Integer](#Default%20Constructor) to the value of the passed *unsigned* { *int*, *long*, *long long* }
 ##### Source:
 ```cpp
 Integer& Integer::operator=(unsigned {int, long, long long} n) {
@@ -236,7 +233,7 @@ int main() {
 ```
 
 #### Character Assignment(s)
-Assigns the value of a [[Documentation#big Integer Documentation|big::Integer]] to the decimal representation of the passed *char* or *std::string*
+Assigns the value of a [big::Integer](#Default%20Constructor) to the decimal representation of the passed *char* or *std::string*
 ##### Source:
 ```cpp
 Integer& Integer::operator=(const char* c) {
@@ -266,7 +263,7 @@ int main() {
 
 ### Comparator Operands
 #### Equivalence
-Returns the equivalence T/F of the two specified [[Documentation#big Integer Documentation|big::Integers]]
+Returns the equivalence T/F of the two specified [big::Integers](#Default%20Constructor)
 ##### Source:
 ```cpp
 bool Integer::operator==(const Integer& o) const {
@@ -290,7 +287,7 @@ int main() {
 }
 ```
 #### Non-Equivalence
-Returns the inverse equivalence T/F of the two specified [[Documentation#big Integer Documentation|big::Integers]]
+Returns the inverse equivalence T/F of the two specified [big::Integers](#Default%20Constructor)
 ##### Source:
 ```cpp
 bool Integer::operator!=(const Integer& o) const {
@@ -315,7 +312,7 @@ int main() {
 ``````
 
 #### Less Than
-Returns T/F whether the left [[Documentation#big Integer Documentation|big::Integer]] is less than the right
+Returns T/F whether the left [big::Integer](#Default%20Constructor) is less than the right
 ##### Source:
 ```cpp
 bool Integer::operator<(const Integer& o) const {
@@ -344,7 +341,7 @@ int main() {
 ``````
 
 #### Greater Than
-Returns T/F whether the left [[Documentation#big Integer Documentation|big::Integer]] is greater than the right
+Returns T/F whether the left [big::Integer](#Default%20Constructor) is greater than the right
 ##### Source:
 ```cpp
 bool Integer::operator>(const Integer& o) const {
@@ -373,7 +370,7 @@ int main() {
 ```
 
 #### Less Than or Equal to
-Returns T/F whether the left [[Documentation#big Integer Documentation|big::Integer]] is less than or equal to the right
+Returns T/F whether the left [big::Integer](#Default%20Constructor) is less than or equal to the right
 ##### Source:
 ```cpp
 bool Integer::operator<=(const Integer& o) const {
@@ -402,7 +399,7 @@ int main() {
 ```
 
 #### Greater Than or Equal To
-Returns T/F whether the left [[Documentation#big Integer Documentation|big::Integer]] is greater than or equal to the right
+Returns T/F whether the left [big::Integer](#Default%20Constructor) is greater than or equal to the right
 ##### Source:
 ```cpp
 bool Integer::operator>=(const Integer& o) const {
@@ -432,7 +429,7 @@ int main() {
 
 ### Arithmetic Operands
 #### Addition
-Returns the sum of the two specified [[Documentation#big Integer Documentation|big::Integers]].
+Returns the sum of the two specified [big::Integers](#Default%20Constructor).
 ##### Source:
 ```cpp
 Integer Integer::operator+(const Integer& o) const {
@@ -461,7 +458,7 @@ int main() {
 ```
 
 #### Subtraction
-Returns the difference of the two specified [[Documentation#big Integer Documentation|big::Integers]].
+Returns the difference of the two specified [big::Integers](#Default%20Constructor).
 ##### Source:
 ```cpp
 Integer Integer::operator-(const Integer& o) const {
@@ -490,7 +487,7 @@ int main() {
 ```
 
 #### Multiplication (big::Integer)
-Returns the product of the two specified [[Documentation#big Integer Documentation|big::Integers]].
+Returns the product of the two specified [big::Integers](#Default%20Constructor).
 ##### Source:
 ```cpp
 Integer Integer::operator*(const Integer& o) const {
@@ -551,7 +548,7 @@ int main() {
 ```
 
 #### Multiplication (BLOCK)
-Returns the sum of the specified [[Documentation#big Integer Documentation|big::Integer]] (left) and [[Documentation#BLOCK (int)]] right.
+Returns the sum of the specified [big::Integer](#Default%20Constructor) (left) and [BLOCK](#BLOCK%20(int)) right.
 ##### Source:
 ```cpp
 Integer Integer::operator*(BLOCK n) {
@@ -594,7 +591,7 @@ int main() {
 ```
 
 #### Division
-Returns the quotient of the two specified [[Documentation#big Integer Documentation|big::Integers]].
+Returns the quotient of the two specified [big::Integers](#Default%20Constructor).
 ##### Source:
 ```cpp
 Integer Integer::operator/(const Integer& o) const {
@@ -635,7 +632,7 @@ int main() {
 ```
 
 #### Modulo
-Returns the remainder of the two specified [[Documentation#big Integer Documentation|big::Integers]].
+Returns the remainder of the two specified [big::Integers](#Default%20Constructor).
 ##### Source:
 ```cpp
 Integer Integer::operator%(const Integer& o) const {
@@ -673,7 +670,7 @@ int main() {
 
 ### Arithmetic & Assignment Operands
 #### Addition
-Assigns (left) and returns the sum of of the two specified [[Documentation#big Integer Documentation|big::Integers]].
+Assigns (left) and returns the sum of of the two specified [big::Integers](#Default%20Constructor).
 ##### Source:
 ```cpp
 const Integer& Integer::operator+=(const Integer& o) {
@@ -703,7 +700,7 @@ int main() {
 ```
 
 #### Subtraction
-Assigns (left) and returns the difference of of the two specified [[Documentation#big Integer Documentation|big::Integers]].
+Assigns (left) and returns the difference of of the two specified [big::Integers](#Default%20Constructor).
 ##### Source:
 ```cpp
 const Integer& Integer::operator-=(const Integer& o) {
@@ -733,7 +730,7 @@ int main() {
 ```
 
 #### Multiplication (big::Integer)
-Assigns (left) and returns the product of of the two specified [[Documentation#big Integer Documentation|big::Integers]].
+Assigns (left) and returns the product of of the two specified [big::Integers](#Default%20Constructor).
 ##### Source:
 ```cpp
 const Integer& Integer::operator*=(const Integer& o) {
@@ -755,7 +752,7 @@ int main() {
 ```
 
 #### Multiplication (BLOCK)
-Assigns (left) and returns the sum of of the specified [[Documentation#big Integer Documentation|big::Integer]] (left) and [[Documentation#BLOCK (int)]] (right).
+Assigns (left) and returns the sum of of the specified [big::Integer](#Default%20Constructor) (left) and [BLOCK](#BLOCK%20(int)) (right).
 ##### Source:
 ```cpp
 const Integer& Integer::operator*=(BLOCK n) {
@@ -778,7 +775,7 @@ int main() {
 ```
 
 #### Division
-Assigns (left) and returns the quotient of of the two specified [[Documentation#big Integer Documentation|big::Integers]].
+Assigns (left) and returns the quotient of of the two specified [big::Integers](#Default%20Constructor).
 ##### Source:
 ```cpp
 const Integer& Integer::operator/=(const Integer& o) {
@@ -801,7 +798,7 @@ int main() {
 ```
 
 #### Modulo
-Assigns (left) and returns the remainder of of the two specified [[Documentation#big Integer Documentation|big::Integers]].
+Assigns (left) and returns the remainder of of the two specified [big::Integers](#Default%20Constructor).
 ##### Source:
 ```cpp
 const Integer& Integer::operator%=(const Integer& o) {
@@ -825,7 +822,7 @@ int main() {
 
 ### Unary Overloads
 #### Inverse Sign (Negative)
-Returns the numerical opposite of the specified [[Documentation#big Integer Documentation|big::Integer]].
+Returns the numerical opposite of the specified [big::Integer](#Default%20Constructor).
 ##### Source:
 ```cpp
 Integer Integer::operator-() const {
@@ -846,7 +843,7 @@ int main() {
 ```
 
 #### Pre-Increment
-Increments, then returns the value of the specified [[Documentation#big Integer Documentation|big::Integer]]. Equivalent to`var++;`
+Increments, then returns the value of the specified [big::Integer](#Default%20Constructor). Equivalent to`var++;`
 ##### Source:
 ```cpp
 Integer Integer::operator++(int) {
@@ -867,7 +864,7 @@ int main() {
 ```
 
 #### Pre-Decrement
-Decrements, then returns the value of the specified [[Documentation#big Integer Documentation|big::Integer]]. Equivalent to`var--;`
+Decrements, then returns the value of the specified [big::Integer](#Default%20Constructor). Equivalent to`var--;`
 ##### Source:
 ```cpp
 Integer Integer::operator--(int) {
@@ -888,7 +885,7 @@ int main() {
 ```
 
 #### Post-Increment
-Increments, using an intermediate to not destroy the original state of the specified [[Documentation#big Integer Documentation|big::Integer]] until the function is complete. Equivalent to `++var;`
+Increments, using an intermediate to not destroy the original state of the specified [big::Integer](#Default%20Constructor) until the function is complete. Equivalent to `++var;`
 ##### Source:
 ```cpp
 const Integer& Integer::operator++() {
@@ -914,7 +911,7 @@ int main() {
 ```
 
 #### Post-Decrement
-Decrements, using an intermediate to not destroy the original state of the specified [[Documentation#big Integer Documentation|big::Integer]] until the function is complete. Equivalent to `--var;`
+Decrements, using an intermediate to not destroy the original state of the specified [big::Integer](#Default%20Constructor) until the function is complete. Equivalent to `--var;`
 ##### Source:
 ```cpp
 const Integer& Integer::operator--() {
@@ -940,9 +937,9 @@ int main() {
 ```
 
 ### Bitwise Operands
-Note: AND, OR, and XOR are **VERY** due to the [[Documentation#big Integer Documentation|big::Integers]] having to be converted to binary every operation. Both of the shifting functions use multiplication and division by two to calculate the result.
+Note: AND, OR, and XOR are **VERY** due to the [big::Integers](#Default%20Constructor) having to be converted to binary every operation. Both of the shifting functions use multiplication and division by two to calculate the result.
 #### AND
-Returns the result of a bitwise AND `&` operation of the two specified [[Documentation#big Integer Documentation|big::Integers]]
+Returns the result of a bitwise AND `&` operation of the two specified [big::Integers](#Default%20Constructor)
 ##### Source:
 ```cpp
 Integer Integer::operator&(Integer& o) {
@@ -981,7 +978,7 @@ int main() {
 ```
 
 #### OR
-Returns the result of a bitwise OR `|` operation of the two specified [[Documentation#big Integer Documentation|big::Integers]]
+Returns the result of a bitwise OR `|` operation of the two specified [big::Integers](#Default%20Constructor)
 ##### Source:
 ```cpp
 Integer Integer::operator|(Integer& o) {
@@ -1020,7 +1017,7 @@ int main() {
 ```
 
 #### XOR
-Returns the result of a bitwise XOR `^` operation of the two specified [[Documentation#big Integer Documentation|big::Integers]]
+Returns the result of a bitwise XOR `^` operation of the two specified [big::Integers](#Default%20Constructor)
 ##### Source:
 ```cpp
 Integer Integer::operator^(Integer& o) {
@@ -1059,7 +1056,7 @@ int main() {
 ```
 
 #### Shift Left
-Returns the result of a logical left shift `<<` operation of the specified [[Documentation#big Integer Documentation|big::Integer]] (left) by the specified *int* (right)
+Returns the result of a logical left shift `<<` operation of the specified [big::Integer](#Default%20Constructor) (left) by the specified *int* (right)
 ##### Source:
 ```cpp
 Integer Integer::operator<<(int n) {
@@ -1084,7 +1081,7 @@ int main() {
 ```
 
 #### Shift Right
-Returns the result of a logical right shift `>>` operation of the specified [[Documentation#big Integer Documentation|big::Integer]] (left) by the specified *int* (right)
+Returns the result of a logical right shift `>>` operation of the specified [big::Integer](#Default%20Constructor) (left) by the specified *int* (right)
 ##### Source:
 ```cpp
 Integer Integer::operator>>(int n) {
@@ -1110,7 +1107,7 @@ int main() {
 
 ### Miscellaneous
 #### Get Length
-Returns the length of the [[Documentation#num|num]] std::vector. This is the number of [[Documentation#BLOCK (int)|BLOCKs]] a big::Integer contains.
+Returns the length of the [num](#num) std::vector. This is the number of [BLOCKs](#BLOCK%20(int)) a big::Integer contains.
 ##### Source:
 ```cpp
 unsigned int Integer::getLength() {
@@ -1129,7 +1126,7 @@ int main() {
 ```
 
 #### Get Digit Length
-Returns the number of digits in the [[Documentation#big Integer Documentation|big::Integer]]. This is the length of the string representation (minus the sign char).
+Returns the number of digits in the [big::Integer](#Default%20Constructor). This is the length of the string representation (minus the sign char).
 ##### Source:
 ```cpp
 unsigned int Integer::getDigitLength() {
@@ -1160,7 +1157,7 @@ int main() {
 ```
 
 #### Get Chunk
-Returns the value of [[Documentation#num|num]] at a specified index *n*.
+Returns the value of [num](#num) at a specified index *n*.
 ##### Source:
 ```cpp
 unsigned int Integer::getChunk(unsigned int n) {
@@ -1180,7 +1177,7 @@ int main() {
 ## Private Member Functions
 ###  Strings
 #### Construct From String
-Constructs a fresh [[Documentation#big Integer Documentation|big::Integer]] object using the provided characters. It functions as follows: determine sign, remove leading zeros, append [[Documentation#BLOCK (int)|BLOCKs]].
+Constructs a fresh [big::Integer](#Default%20Constructor) object using the provided characters. It functions as follows: determine sign, remove leading zeros, finally append [BLOCKs](#BLOCK%20(int)).
 ##### Source:
 ```cpp
 void Integer::construct_from_string(std::string str) {
@@ -1219,7 +1216,7 @@ void Integer::construct_from_string(std::string str) {
 
 ### Arithmetic Helpers
 #### Tweak Blocks
-This function is a doozy. It manages most of the logic outside of arithmetic. It borrows and carries, fixes and sign errors, calls [[Documentation#Trim Leading Zeros| trim_leading()]] to remove any remaining zeros.
+This function is a doozy. It manages most of the logic outside of arithmetic. It borrows and carries, fixes and sign errors, calls [trim_leading()](#Trim%20Leading%20Zeros) to remove any remaining zeros.
 ##### Source:
 ```cpp
 int main() {
@@ -1322,7 +1319,7 @@ void Integer::tweak_blocks() {
 ```
 
 #### Trim Leading Zeros
-Trims any excess zero's from the most significant end (Big-Endian aka. Left) of the [[Documentation#big Integer Documentation|big::Integer]].
+Trims any excess zero's from the most significant end (Big-Endian aka. Left) of the [big::Integer](#Default%20Constructor).
 ##### Source:
 ```cpp
 void Integer::trim_leading() {
@@ -1338,7 +1335,7 @@ void Integer::trim_leading() {
 ```
 
 #### Denominator in Remainder
-Self explanatory helper used in [[Documentation#Division|Division and Modulus]] to calculate the next digit of the quotient in the appropriate step.
+Self explanatory helper used in [Division and Modulus](#Division) to calculate the next digit of the quotient in the appropriate step.
 ##### Source:
 ```cpp
 BLOCK Integer::denominator_in_remainder(const Integer& rem, const Integer& den) {
@@ -1364,7 +1361,7 @@ BLOCK Integer::denominator_in_remainder(const Integer& rem, const Integer& den) 
 
 ### Binary
 #### Get Binary Representation
-Creates a binary representation of the called upon [[Documentation#big Integer Documentation|big::Integer]].
+Creates a binary representation of the called upon [big::Integer](#Default%20Constructor).
 ##### Source:
 ```cpp
 std::string Integer::get_binary() {
@@ -1394,7 +1391,7 @@ std::string Integer::get_binary() {
 ```
 
 #### Construct from Binary
-Constructs a [[Documentation#big Integer Documentation|big::Integer]] given the passed characters.
+Constructs a [big::Integer](#Default%20Constructor) given the passed characters.
 ##### Source:
 ```cpp
 Integer Integer::from_binary(const std::string& str) {
@@ -1416,7 +1413,7 @@ Integer Integer::from_binary(const std::string& str) {
 ## Non-Member Functions
 ### Strings
 #### Ostream Operator
-Sends the string representation of a [[Documentation#big Integer Documentation|big::Integer]] to the outbound data stream `ostream`.
+Sends the string representation of a [big::Integer](#Default%20Constructor) to the outbound data stream `ostream`.
 ##### Source:
 ```cpp
 std::ostream& operator<<(std::ostream& os, const Integer& o) {
@@ -1449,7 +1446,7 @@ int main() {
 ```
 
 #### To String
-Creates a string representation of a [[Documentation#big Integer Documentation|big::Integer]]
+Creates a string representation of a [big::Integer](#Default%20Constructor)
 using the `ostream` operator on a `ostringstream` object. Little cheeky, but it works.
 ##### Source:
 ```cpp
@@ -1468,7 +1465,7 @@ int main() {
 ```
 ### Arithmetic
 #### Quotient and Remainder
-Finds the quotient and remainder of two *int*s in one function call. Used only in [[Documentation#Denominator in Remainder]] to simplify the code.
+Finds the quotient and remainder of two *int*s in one function call. Used only in [denominator_in_remainder()](#Denominator%20in%20Remainder) to simplify the code.
 ##### Source:
 ```cpp
 div_t quot_and_rem(int num, int den) {
