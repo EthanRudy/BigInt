@@ -1475,3 +1475,82 @@ div_t quot_and_rem(int num, int den) {
 	return result;
 }
 ```
+
+#### Power
+Enables the calculation of powers beyond standard C++ bit limits
+##### Source:
+```cpp
+Integer pow({int, big::Integer} base, int exp) {
+	if (exp < 0) {
+		throw IntegerException("Cannot raise base to a negative number");
+	}
+	else if (exp == 0 || base == 1) { return Integer(1); }
+	Integer result = 1;
+
+	while (exp > 0) {
+		result *= base;
+		--exp;
+	}
+
+	return result;
+}
+```
+##### Example:
+```cpp
+int main() {
+	big::Integer base = 2;
+	big::Integer num = big::pow(base, 10000);
+}
+```
+
+#### Random
+Generates a random [big::Integer](#Default%20Constructor) in the passed interval
+##### Source:
+```cpp
+Integer random(big::Integer min, big::Integer max) {
+	if (max < min) {
+		throw IntegerException("Maximum random value cannot exceed the specified minimum");
+	}
+
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	Integer random_big;
+
+	// Negative number check
+	bool negative = false;
+	Integer offset = -min;
+	if (min < 0) { 
+		negative = true;
+		min += offset, max += offset; 
+	}
+
+	int min_size = min.getLength(), max_size = max.getLength();
+
+	for (int i = 0; i < max_size; ++i) {
+		int min_rand = 0, max_rand = BASE;
+		if (i == (min_size - 1)) {
+			min_rand = min.getChunk(i);
+		}
+		if (i == (max_size - 1)) {
+			max_rand = max.getChunk(i);
+		}
+
+		std::uniform_int_distribution<> dist(min_rand, max_rand - 1);
+		Integer rand_block = dist(gen);
+		random_big += rand_block * ((i > 0) ? (BASE * (i)) : 1);
+	}
+
+	if (negative) { random_big -= offset; }
+	return random_big;
+
+}
+```
+##### Example:
+```cpp
+int main() {
+	big::Integer min(0), max(1000000000);
+	big::Integer r_num = big::random(min, max);
+	// Random integer on interval [0, 1000000000) 
+}
+```
+
