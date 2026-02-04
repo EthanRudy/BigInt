@@ -1,7 +1,5 @@
 // -*- LSST-C++ -*-
-
-#ifndef BIGINT_HPP
-#define BIGINT_HPP
+#pragma once
 
 #include <exception>
 #include <iomanip>
@@ -11,15 +9,15 @@
 #include <string>
 #include <vector>
 
-// BIG namespace
 namespace big {
+
 
 	// Custom exception class
 	class IntegerException : std::exception {
 	public:
 
 		// Constructor (primary)
-		IntegerException(const std::string& msg) : _msg(msg) { }
+		IntegerException(const std::string& msg) : _msg(msg) {}
 
 		// what() overload
 		virtual const char* what() const noexcept override {
@@ -472,14 +470,14 @@ namespace big {
 
 
 	// Default Constructor
-	Integer::Integer() {
+	inline Integer::Integer() {
 		num = { 0 };	// Set default value to 0
 		sign = false;
 	}
 
 
 	// Integer Constructor
-	Integer::Integer(int n) {
+	inline Integer::Integer(int n) {
 		// If n == 0, sign is 0
 		// If n  > 0, sign is 0
 		// If n  < 0, sign is 1
@@ -495,7 +493,7 @@ namespace big {
 
 
 	// Long Constructor
-	Integer::Integer(long n) {
+	inline Integer::Integer(long n) {
 		if (n == 0) { sign = 0; }
 		else if (n > 0) { sign = 0; }
 		else { sign = 1, n = -n; }
@@ -508,7 +506,7 @@ namespace big {
 
 
 	// LLong Constructor
-	Integer::Integer(long long n) {
+	inline Integer::Integer(long long n) {
 		if (n == 0) { sign = 0; }
 		else if (n > 0) { sign = 0; }
 		else { sign = 1, n = -n; }
@@ -521,7 +519,7 @@ namespace big {
 
 
 	// uInt Constructor
-	Integer::Integer(unsigned int n) {
+	inline Integer::Integer(unsigned int n) {
 		sign = 0;
 		do {
 			num.push_back(n % BASE);
@@ -531,7 +529,7 @@ namespace big {
 
 
 	// uLong Constructor
-	Integer::Integer(unsigned long n) {
+	inline Integer::Integer(unsigned long n) {
 		sign = 0;
 		do {
 			num.push_back(n % BASE);
@@ -541,7 +539,7 @@ namespace big {
 
 
 	// uLLong Constructor
-	Integer::Integer(unsigned long long n) {
+	inline Integer::Integer(unsigned long long n) {
 		sign = 0;
 		do {
 			num.push_back(n % BASE);
@@ -551,24 +549,24 @@ namespace big {
 
 
 	// Char Array Constructor
-	Integer::Integer(const char* str) {
+	inline Integer::Integer(const char* str) {
 		construct_from_string(str);
 	}
 
 
 	// std::string Constructor
-	Integer::Integer(const std::string& str) {
+	inline Integer::Integer(const std::string& str) {
 		construct_from_string(str);
 	}
 
 	// Deconstructor
-	Integer::~Integer() {
+	inline Integer::~Integer() {
 		num.clear();
 	}
 
 
 	// Copy Constructor
-	Integer::Integer(const Integer& o) {
+	inline Integer::Integer(const Integer& o) {
 		num.clear();
 
 		sign = o.sign;
@@ -579,7 +577,7 @@ namespace big {
 
 
 	// Integer Object Assignment
-	Integer& Integer::operator=(const Integer& o) {
+	inline Integer& Integer::operator=(const Integer& o) {
 		num.clear();
 
 		sign = o.sign;
@@ -592,7 +590,7 @@ namespace big {
 
 
 	// Int Assignment
-	Integer& Integer::operator=(int n) {
+	inline Integer& Integer::operator=(int n) {
 		num.clear();
 
 		if (n == 0) { sign = 0; }
@@ -609,7 +607,7 @@ namespace big {
 
 
 	// Long Assignment
-	Integer& Integer::operator=(long n) {
+	inline Integer& Integer::operator=(long n) {
 		num.clear();
 
 		if (n == 0) { sign = 0; }
@@ -626,7 +624,7 @@ namespace big {
 
 
 	// LLong Assignment
-	Integer& Integer::operator=(long long n) {
+	inline Integer& Integer::operator=(long long n) {
 		num.clear();
 
 		if (n == 0) { sign = 0; }
@@ -643,7 +641,7 @@ namespace big {
 
 
 	// uInt Assignment
-	Integer& Integer::operator=(unsigned int n) {
+	inline Integer& Integer::operator=(unsigned int n) {
 		num.clear();
 
 		sign = 0;
@@ -658,7 +656,7 @@ namespace big {
 
 
 	// uLong Assignment
-	Integer& Integer::operator=(unsigned long n) {
+	inline Integer& Integer::operator=(unsigned long n) {
 		num.clear();
 
 		sign = 0;
@@ -673,7 +671,7 @@ namespace big {
 
 
 	// uLLong Assignment
-	Integer& Integer::operator=(unsigned long long n) {
+	inline Integer& Integer::operator=(unsigned long long n) {
 		num.clear();
 
 		sign = 0;
@@ -688,7 +686,7 @@ namespace big {
 
 
 	// Char Array Assignment
-	Integer& Integer::operator=(const char* c) {
+	inline Integer& Integer::operator=(const char* c) {
 		num.clear();
 
 		construct_from_string(c);
@@ -698,7 +696,7 @@ namespace big {
 
 
 	// std::string Constructor
-	Integer& Integer::operator=(const std::string& c) {
+	inline Integer& Integer::operator=(const std::string& c) {
 		num.clear();
 
 		construct_from_string(c);
@@ -708,7 +706,7 @@ namespace big {
 
 
 	// Ostream Operator Overload
-	std::ostream& operator<<(std::ostream& os, const Integer& o) {
+	inline std::ostream& operator<<(std::ostream& os, const Integer& o) {
 		if (o.sign) { os << '-'; }	// Append negative sign
 
 		bool first = true;
@@ -729,7 +727,7 @@ namespace big {
 
 
 	// to_string()
-	std::string to_string(const Integer& n) {
+	inline std::string to_string(const Integer& n) {
 		std::ostringstream ss;
 		ss << n;
 		return ss.str();
@@ -737,7 +735,7 @@ namespace big {
 
 
 	// Equivalence Operator Overload
-	bool Integer::operator==(const Integer& o) const {
+	inline bool Integer::operator==(const Integer& o) const {
 		if (sign != o.sign) { return false; }
 		if (num.size() != o.num.size()) { return false; }
 
@@ -750,7 +748,7 @@ namespace big {
 
 
 	// Not-Equivalence Operator Overload
-	bool Integer::operator!=(const Integer& o) const {
+	inline bool Integer::operator!=(const Integer& o) const {
 		if (sign != o.sign) { return true; }
 		if (num.size() != o.num.size()) { return true; }
 
@@ -763,7 +761,7 @@ namespace big {
 
 
 	// Less-Than Operator Overload
-	bool Integer::operator<(const Integer& o) const {
+	inline bool Integer::operator<(const Integer& o) const {
 		if (sign && !o.sign) { return true; }		// Negative vs Positive
 		else if (!sign && o.sign) { return false; }	// Positive vs Negative
 
@@ -780,7 +778,7 @@ namespace big {
 
 
 	// Greater-Than Operator Overload
-	bool Integer::operator>(const Integer& o) const {
+	inline bool Integer::operator>(const Integer& o) const {
 		if (sign && !o.sign) { return false; }		// Negative vs Positive
 		else if (!sign && o.sign) { return true; }	// Positive vs Negative
 
@@ -797,7 +795,7 @@ namespace big {
 
 
 	// Less-Than or Equal-To Operator Overload
-	bool Integer::operator<=(const Integer& o) const {
+	inline bool Integer::operator<=(const Integer& o) const {
 		if (sign && !o.sign) { return true; }		// Negative vs Positive
 		else if (!sign && o.sign) { return false; }	// Positive vs Negative
 
@@ -814,7 +812,7 @@ namespace big {
 
 
 	// Greater-Than or Equal-To Operator Overload
-	bool Integer::operator>=(const Integer& o) const {
+	inline bool Integer::operator>=(const Integer& o) const {
 		if (sign && !o.sign) { return false; }		// Negative vs Positive
 		else if (!sign && o.sign) { return true; }	// Positive vs Negative
 
@@ -831,7 +829,7 @@ namespace big {
 
 
 	// Addition Overload
-	Integer Integer::operator+(const Integer& o) const {
+	inline Integer Integer::operator+(const Integer& o) const {
 		Integer result;
 
 		size_t len = (num.size() > o.num.size() ? num.size() : o.num.size());
@@ -848,7 +846,7 @@ namespace big {
 
 
 	// Subtraction Overload
-	Integer Integer::operator-(const Integer& o) const {
+	inline Integer Integer::operator-(const Integer& o) const {
 		Integer result;
 
 		size_t len = (num.size() > o.num.size() ? num.size() : o.num.size());
@@ -865,7 +863,7 @@ namespace big {
 
 
 	// Multiplication Overload (Object)
-	Integer Integer::operator*(const Integer& o) const {
+	inline Integer Integer::operator*(const Integer& o) const {
 		Integer result;
 		result.num.resize(num.size() + o.num.size(), 0);
 		BLOCK_PRODUCT carry = 0;
@@ -914,7 +912,7 @@ namespace big {
 
 
 	// Multiplication Overload (Block)
-	Integer Integer::operator*(BLOCK n) {
+	inline Integer Integer::operator*(BLOCK n) {
 		Integer result;
 
 		BLOCK factor = abs(n);	// Factor to be multiplied (scale)
@@ -945,7 +943,7 @@ namespace big {
 
 
 	// Division overload
-	Integer Integer::operator/(const Integer& o) const {
+	inline Integer Integer::operator/(const Integer& o) const {
 
 		// Division by zero exception
 		if (o.num.size() == 1 && o.num[0] == 0) {
@@ -975,7 +973,7 @@ namespace big {
 
 
 	// Modulo overload
-	Integer Integer::operator%(const Integer& o) const {
+	inline Integer Integer::operator%(const Integer& o) const {
 
 		// Division by zero exception
 		if (o.num.size() == 1 && o.num[0] == 0) {
@@ -1001,7 +999,7 @@ namespace big {
 
 
 	// Addition & Assignment Overload
-	const Integer& Integer::operator+=(const Integer& o) {
+	inline const Integer& Integer::operator+=(const Integer& o) {
 		size_t len = num.size();
 		if (o.num.size() > len) {
 			len = o.num.size();
@@ -1019,7 +1017,7 @@ namespace big {
 
 
 	// Subtraction & Assignment Overload
-	const Integer& Integer::operator-=(const Integer& o) {
+	inline const Integer& Integer::operator-=(const Integer& o) {
 		size_t len = num.size();
 		if (o.num.size() > len) {
 			len = o.num.size();
@@ -1037,7 +1035,7 @@ namespace big {
 
 
 	// Multiplication & Assignment Overload (Object)
-	const Integer& Integer::operator*=(const Integer& o) {
+	inline const Integer& Integer::operator*=(const Integer& o) {
 		// Cant think of an encompassing method of in place multiplication
 
 		*this = *this * o;
@@ -1047,7 +1045,7 @@ namespace big {
 
 
 	// Multiplication & Assignment Overload (Block)
-	const Integer& Integer::operator*=(BLOCK n) {
+	inline const Integer& Integer::operator*=(BLOCK n) {
 		// Cant think of an encompassing method of in place multiplication
 
 		*this = *this * n;
@@ -1058,7 +1056,7 @@ namespace big {
 
 
 	// Division & Assignment Overload
-	const Integer& Integer::operator/=(const Integer& o) {
+	inline const Integer& Integer::operator/=(const Integer& o) {
 		// Cant think of an encompassing method of in place division
 
 		*this = *this / o;
@@ -1069,7 +1067,7 @@ namespace big {
 
 
 	// Modulo & Assignment Overload
-	const Integer& Integer::operator%=(const Integer& o) {
+	inline const Integer& Integer::operator%=(const Integer& o) {
 		// Cant think of an encompassing method of in place modulo
 
 		*this = *this % o;
@@ -1080,7 +1078,7 @@ namespace big {
 
 
 	// Unary Negative
-	Integer Integer::operator-() const {
+	inline Integer Integer::operator-() const {
 		Integer result = *this;
 		result.sign = !sign;
 
@@ -1089,7 +1087,7 @@ namespace big {
 
 
 	// Pre-increment
-	Integer Integer::operator++(int) {
+	inline Integer Integer::operator++(int) {
 		Integer result = *this;
 		result.num[0] += (sign ? -1 : 1);
 
@@ -1099,7 +1097,7 @@ namespace big {
 	}
 
 	// Pre-decrement
-	Integer Integer::operator--(int) {
+	inline Integer Integer::operator--(int) {
 		Integer result = *this;
 		result.num[0] -= (sign ? -1 : 1);
 
@@ -1109,7 +1107,7 @@ namespace big {
 	}
 
 	// Post-increment
-	const Integer& Integer::operator++() {
+	inline const Integer& Integer::operator++() {
 		num[0] += (sign ? -1 : 1);
 		tweak_blocks();
 
@@ -1117,7 +1115,7 @@ namespace big {
 	}
 
 	// Post-decrement
-	const Integer& Integer::operator--() {
+	inline const Integer& Integer::operator--() {
 		num[0] -= (sign ? -1 : 1);
 		tweak_blocks();
 
@@ -1126,7 +1124,7 @@ namespace big {
 
 
 	// Bitwise And Overload
-	Integer Integer::operator&(Integer& o) {
+	inline Integer Integer::operator&(Integer& o) {
 		std::string result = "";
 		std::string bin = get_binary();
 		std::string o_bin = o.get_binary();
@@ -1151,7 +1149,7 @@ namespace big {
 	}
 
 	// Bitwise Or Overload
-	Integer Integer::operator|(Integer& o) {
+	inline Integer Integer::operator|(Integer& o) {
 		std::string result = "";
 		std::string bin = get_binary();
 		std::string o_bin = o.get_binary();
@@ -1177,7 +1175,7 @@ namespace big {
 
 
 	// Bitwise Xor Overload
-	Integer Integer::operator^(Integer& o) {
+	inline Integer Integer::operator^(Integer& o) {
 		std::string result = "";
 		std::string bin = get_binary();
 		std::string o_bin = o.get_binary();
@@ -1203,7 +1201,7 @@ namespace big {
 
 
 	// Shift Left Overload
-	Integer Integer::operator<<(int n) {
+	inline Integer Integer::operator<<(int n) {
 		Integer result = *this;
 
 		while (n > 0) {
@@ -1216,7 +1214,7 @@ namespace big {
 
 
 	// Shift Right Overload
-	Integer Integer::operator>>(int n) {
+	inline Integer Integer::operator>>(int n) {
 		Integer result = *this;
 
 		while (n > 0) {
@@ -1229,13 +1227,13 @@ namespace big {
 
 
 	//  Get Length (Chunk)
-	unsigned int Integer::getLength() {
+	inline unsigned int Integer::getLength() {
 		return num.size();
 	}
 
 
 	// Get Length (Digits)
-	unsigned int Integer::getDigitLength() {
+	inline unsigned int Integer::getDigitLength() {
 		int digits = 0;
 		for (int i = 0; i < num.size() - 1; ++i) {
 			digits += 9;
@@ -1251,7 +1249,7 @@ namespace big {
 	}
 
 	// Get Chunk
-	unsigned int Integer::getChunk(unsigned int n) {
+	inline unsigned int Integer::getChunk(unsigned int n) {
 		return num[n];
 	}
 
@@ -1260,7 +1258,7 @@ namespace big {
 
 
 	// Construct From String
-	void Integer::construct_from_string(std::string str) {
+	inline void Integer::construct_from_string(std::string str) {
 		if (str[0] == '-') {
 			sign = 1;			// Negative check
 			str = str.substr(1);
@@ -1295,7 +1293,7 @@ namespace big {
 
 
 	// Tweak Blocks
-	void Integer::tweak_blocks() {
+	inline void Integer::tweak_blocks() {
 
 
 		/**
@@ -1396,7 +1394,7 @@ namespace big {
 
 
 	// Trim Leading (zeros)
-	void Integer::trim_leading() {
+	inline void Integer::trim_leading() {
 		int i = num.size() - 1;
 		while (i > 0) {
 			if (num[i] == 0) {
@@ -1408,7 +1406,7 @@ namespace big {
 	}
 
 	// Small helper for the division/modulo helper
-	div_t quot_and_rem(int num, int den) {
+	inline div_t quot_and_rem(int num, int den) {
 		div_t result;
 		result.quot = num / den;
 		result.rem = num % den;
@@ -1416,7 +1414,7 @@ namespace big {
 	}
 
 	// Denominator In Remainder
-	BLOCK Integer::denominator_in_remainder(const Integer& rem, const Integer& den) {
+	inline BLOCK Integer::denominator_in_remainder(const Integer& rem, const Integer& den) {
 		BLOCK min = 0, max = MAX;
 
 		while (max > min) {
@@ -1438,7 +1436,7 @@ namespace big {
 
 
 	// Get Binary
-	std::string Integer::get_binary() {
+	inline std::string Integer::get_binary() {
 		std::string bin = "";
 		Integer num = *this;
 
@@ -1465,7 +1463,7 @@ namespace big {
 
 
 	// From Binary
-	Integer Integer::from_binary(const std::string& str) {
+	inline Integer Integer::from_binary(const std::string& str) {
 		Integer num = 0;
 		Integer power = 1;
 
@@ -1485,7 +1483,7 @@ namespace big {
 	////////////////
 
 	// Power (Primitive)
-	Integer pow(int base, int exp) {
+	inline Integer pow(int base, int exp) {
 		if (exp < 0) {
 			throw IntegerException("Cannot raise base to a negative number");
 		}
@@ -1502,7 +1500,7 @@ namespace big {
 
 
 	// Power (Object)
-	Integer pow(const Integer& base, int exp) {
+	inline Integer pow(const Integer& base, int exp) {
 		if (exp < 0) {
 			throw IntegerException("Cannot raise base to a negative number");
 		}
@@ -1518,7 +1516,7 @@ namespace big {
 	}
 
 	// Random (range)
-	Integer random(big::Integer min, big::Integer max) {
+	inline Integer random(Integer min, Integer max) {
 		if (max < min) {
 			throw IntegerException("Maximum random value cannot exceed the specified minimum");
 		}
@@ -1530,9 +1528,9 @@ namespace big {
 		// Negative number check?
 		bool negative = false;
 		Integer offset = -min;
-		if (min < 0) { 
+		if (min < 0) {
 			negative = true;
-			min += offset, max += offset; 
+			min += offset, max += offset;
 		}
 
 		int min_size = min.getLength(), max_size = max.getLength();
@@ -1555,8 +1553,22 @@ namespace big {
 		return random_big;
 
 	}
+
+	// Factorial
+	inline Integer factorial(int n) {
+		if (n < 0) {
+			throw IntegerException("n! of a value of n < 0 is not possible");
+		}
+		else if (n == 0) { 
+			return Integer(1); 
+		}
+		big::Integer ans = 1;
+
+		for (int i = 1; i <= n; ++i) {
+			ans *= i;
+		}
+
+		return ans;
+	}
+
 }
-
-
-
-#endif // BIGINT_HPP
